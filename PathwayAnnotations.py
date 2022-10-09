@@ -29,8 +29,8 @@ class PathwayAnnotations(qw.QMainWindow):
         layout = qw.QGridLayout()
 
         # title at the top of the screen
-        title = qw.QLabel("SPECTRA")
-        title.setFont(qg.QFont("Times", 20, 2))
+        title = qw.QLabel("Pathway Annotations")
+        title.setFont(qg.QFont("Times", 15, 2))
 
         # gene-set annotations section
         gene_set_box = qw.QWidget()
@@ -93,7 +93,7 @@ class PathwayAnnotations(qw.QMainWindow):
         
 
         # gene set annotations layout
-        gene_set_layout.addWidget(gene_set_label,0,0,1,1,qc.Qt.AlignTop)
+        gene_set_layout.addWidget(gene_set_label,0,0,1,1,qc.Qt.AlignBottom)
         gene_set_layout.addWidget(gene_set_temp,1,0,3,8)
         gene_set_layout.addWidget(delete_gene_set_button,4,7,1,1,qc.Qt.AlignBottom)
         gene_set_layout.addWidget(edit_gene_set_button,4,6,1,1,qc.Qt.AlignBottom)
@@ -101,7 +101,7 @@ class PathwayAnnotations(qw.QMainWindow):
         gene_set_box.setLayout(gene_set_layout)
 
         # genes layout
-        gene_box_layout.addWidget(gene_box_label,0,0,1,1,qc.Qt.AlignTop)
+        gene_box_layout.addWidget(gene_box_label,0,0,1,1,qc.Qt.AlignBottom)
         gene_box_layout.addWidget(gene_box_temp,1,0,3,8)
         gene_box_layout.addWidget(delete_gene_box_button,4,7,1,1,qc.Qt.AlignBottom)
         gene_box_layout.addWidget(edit_gene_box_button,4,6,1,1,qc.Qt.AlignBottom)
