@@ -3,6 +3,8 @@ import sys
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
+import PathwayAnnotations as pa
+import AdvancedOptions as ao
 
 class InputPage(qw.QMainWindow):
 
@@ -13,7 +15,14 @@ class InputPage(qw.QMainWindow):
         self.top = 100
         self.width = 400
         self.height = 300
+        self.path_ann = pa.PathwayAnnotations()
+        self.adv_op = ao.AdvancedOptions()
         self.initUI()
+
+    def closeEvent(self, a0: qg.QCloseEvent) -> None:
+        self.path_ann.close()
+        self.adv_op.close()
+        return super().closeEvent(a0)
     
     def initUI(self):
         
@@ -101,21 +110,17 @@ class InputPage(qw.QMainWindow):
 
 
     def adv_edit_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Open up advanced options screen!")
-        newWindow.exec()
+        self.adv_op.show()
 
     def pathway_edit_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Open up pathway annotations screen!")
-        newWindow.exec()
+        self.path_ann.show()
 
     def run_button_press(self):
         newWindow = qw.QMessageBox(self.wid)
         if self.annd_box.text() == "":
             newWindow.setText("Please input a filepath for the Annotated Data")
         else: 
-            newWindow.setText("Running in progress, with AnnData from \'" + self.annd_box.text() + "\' and a lambda value of " + self.lam_box.text())
+            newWindow.setText("Running in progress, with AnnData from \'" + self.annd_box.text() + "\' and a rho value of " + self.adv_op.rho_box.text())
         newWindow.exec()
     
 if __name__ == '__main__':

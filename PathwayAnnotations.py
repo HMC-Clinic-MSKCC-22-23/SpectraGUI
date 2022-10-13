@@ -122,7 +122,7 @@ class PathwayAnnotations(qw.QMainWindow):
     
         self.wid.setLayout(layout)
 
-        self.show()
+        # self.show()
 
     def save_edit_press(self):
         newWindow = qw.QMessageBox(self.wid)

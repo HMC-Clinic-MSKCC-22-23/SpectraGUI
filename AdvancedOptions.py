@@ -117,7 +117,7 @@ class AdvancedOptions(qw.QMainWindow):
 
         self.wid.setLayout(layout)
 
-        self.show()
+        # self.show()
 
 
     
