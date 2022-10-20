@@ -90,7 +90,7 @@ class OutputPage(qw.QMainWindow):
 
         self.wid.setLayout(layout)
 
-        self.show()
+        # self.show()
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)

@@ -77,9 +77,9 @@ class InputPage(qw.QMainWindow):
         adv_edit_button.setFont(qg.QFont("Times", 11))
 
         # run button
-        run_button = qw.QPushButton("Run")
-        run_button.clicked.connect(self.run_button_press)
-        run_button.setFont(qg.QFont("Times", 14))
+        self.run_button = qw.QPushButton("Run")
+        #self.run_button.clicked.connect(self.run_button_press)
+        self.run_button.setFont(qg.QFont("Times", 14))
 
         # add widgets to the layout
         layout.addWidget(title, 0, 0, 1, 5, qc.Qt.AlignCenter)
@@ -91,7 +91,7 @@ class InputPage(qw.QMainWindow):
         layout.addWidget(self.lam_box, 3, 4)
         layout.addWidget(adv, 4, 0, 1, 3)
         layout.addWidget(adv_edit_button, 4, 4)
-        layout.addWidget(run_button, 6, 0, 1, 5, qc.Qt.AlignCenter)
+        layout.addWidget(self.run_button, 6, 0, 1, 5, qc.Qt.AlignCenter)
 
         layout.setRowStretch(5, 100)
         layout.setHorizontalSpacing(80)
