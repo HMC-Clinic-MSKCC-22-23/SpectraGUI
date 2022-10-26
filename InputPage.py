@@ -6,6 +6,8 @@ import PyQt5.QtGui as qg
 import PathwayAnnotations as pa
 import AdvancedOptions as ao
 
+from os.path import exists
+
 class InputPage(qw.QMainWindow):
 
     def __init__(self):
@@ -119,9 +121,17 @@ class InputPage(qw.QMainWindow):
         newWindow = qw.QMessageBox(self.wid)
         if self.annd_box.text() == "":
             newWindow.setText("Please input a filepath for the Annotated Data")
+            newWindow.exec()
+            return False
+        elif not exists(self.annd_box.text()):
+            newWindow.setText("The inputted filepath for the Annotated Data is invalid")
+            newWindow.exec()
+            return False
         else: 
             newWindow.setText("Running in progress, with AnnData from \'" + self.annd_box.text() + "\' and a rho value of " + self.adv_op.rho_box.text())
-        newWindow.exec()
+            newWindow.exec()
+            return True
+        
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
