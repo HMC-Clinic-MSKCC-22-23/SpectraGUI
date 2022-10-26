@@ -3,11 +3,25 @@ import sys
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
-import InputPage as ip
+import spectra as spc
 
 class OutputPage(qw.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, anndata, gene_dict, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes):
+
+        model = spc.est_spectra(adata = anndata,  gene_set_dictionary = gene_dict, cell_type_key = "cell_type", lam = lambda_val, use_highly_variable = highly_var, 
+                                    rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+
+        self.adata = anndata
+        self.gene_dictionary = gene_dict
+        self.lam = lambda_val
+        self.highly_var = highly_var
+        self.rho = rho_val
+        self.delta = delta_val
+        self.kappa = kappa_val
+        self.use_weights = use_weights
+        self.top_genes = top_genes
+
         super().__init__()
         self.title = "Spectra output screen"
         self.left = 100
