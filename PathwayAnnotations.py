@@ -3,7 +3,7 @@ import sys
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
-import json
+import ast
 
 class PathwayAnnotations(qw.QMainWindow):
     def __init__(self):
@@ -19,6 +19,7 @@ class PathwayAnnotations(qw.QMainWindow):
         self.new_gene = newGeneAnnotationWindow()
         self.new_gene_set = newGeneSetAnnotationWindow()
         self.current_gene_set = None
+        self.current_pathway = None
         self.initEditAnnotations()
 
     # probably needs a close event
@@ -110,8 +111,10 @@ class PathwayAnnotations(qw.QMainWindow):
         cancel_button.clicked.connect(self.cancel_press)
         cancel_button.setFont(qg.QFont("Times", 11))
 
-        # setting up the table connection
+        # setting up the table connections
         self.gene_set_table.itemDoubleClicked.connect(self.propogate_gene_table)
+        self.gene_set_table.itemClicked.connect(self.update_current_gene_set)
+        self.gene_table.itemClicked.connect(self.update_current_pathway)
 
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
@@ -150,19 +153,21 @@ class PathwayAnnotations(qw.QMainWindow):
         # self.show()
 
     def save_edit_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Closes and saves pathway annotations edit screen")
-        newWindow.exec()
+        self.hide()
 
     def delete_gene_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("deletes gene annotation")
-        newWindow.exec()
+        current_dict = self.genes_dict.get(self.current_gene_set)
+        reply = qw.QMessageBox.question(self.wid,"Delete", "Are you sure you want to delete the pathway "+ self.current_pathway +"?", qw.QMessageBox.Yes | qw.QMessageBox.No, qw.QMessageBox.No)
+        if reply == qw.QMessageBox.Yes:
+            current_dict.pop(self.current_pathway)
+            self.updateTable(current_dict, self.gene_table)
+            self.updateTable(self.genes_dict, self.gene_set_table)
 
     def delete_gene_set_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("deletes gene-set annotation")
-        newWindow.exec()
+        reply = qw.QMessageBox.question(self.wid,"Delete", "Are you sure you want to delete the gene_set "+self.current_gene_set+"?", qw.QMessageBox.Yes | qw.QMessageBox.No, qw.QMessageBox.No)
+        if reply == qw.QMessageBox.Yes:
+            self.genes_dict.pop(self.current_gene_set)
+            self.updateTable(self.genes_dict, self.gene_set_table)
 
     def upload_edit_press(self):
         newWindow = qw.QMessageBox(self.wid)
@@ -183,7 +188,19 @@ class PathwayAnnotations(qw.QMainWindow):
         self.edit_gene.hide()
     
     def edit_gene_set_press(self):
+        if self.current_gene_set is not None:
+            self.edit_gene_set.gs_box.setText(self.current_gene_set)
+            self.edit_gene_set.pathway_box.setText(str(self.genes_dict.get(self.current_gene_set)))
         self.edit_gene_set.show()
+        self.edit_gene_set.ok_button.clicked.connect(self.save_gene_set_edit)
+
+    def save_gene_set_edit(self): 
+        new_pathway = { self.edit_gene_set.gs_box.text() : ast.literal_eval(self.edit_gene_set.pathway_box.text())}
+        self.current_gene_set = self.edit_gene_set.gs_box.text()
+        self.genes_dict.update(new_pathway)
+        self.updateTable(new_pathway.get(self.current_gene_set), self.gene_table)
+        self.updateTable(self.genes_dict, self.gene_set_table)
+        self.edit_gene_set.hide()
 
     def add_gene_press(self):
         self.new_gene.show()
@@ -203,7 +220,7 @@ class PathwayAnnotations(qw.QMainWindow):
         self.new_gene_set.ok_button.clicked.connect(self.save_new_gene_set)
 
     def save_new_gene_set(self):
-        new_gs = {self.new_gene_set.gs_box.text() : json.loads(self.new_gene_set.pathway_box.text())}
+        new_gs = {self.new_gene_set.gs_box.text() : ast.literal_eval(self.new_gene_set.pathway_box.text())}
         self.genes_dict = self.genes_dict | new_gs
         self.updateTable(self.genes_dict, self.gene_set_table)
         self.new_gene_set.hide()
@@ -225,6 +242,11 @@ class PathwayAnnotations(qw.QMainWindow):
         self.updateTable(self.genes_dict.get(self.gene_set_table.item(self.gene_set_table.currentRow(),0).text()),self.gene_table)
         self.current_gene_set = self.gene_set_table.item(self.gene_set_table.currentRow(),0).text()
         
+    def update_current_gene_set(self):
+        self.current_gene_set = self.gene_set_table.item(self.gene_set_table.currentRow(),0).text()
+
+    def update_current_pathway(self):
+        self.current_pathway = self.gene_table.item(self.gene_table.currentRow(),0).text()
 
 class editGeneSetAnnotationWindow(qw.QMainWindow):
     def __init__(self):
@@ -258,21 +280,21 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
         gs_name.setFont(qg.QFont("Times", 11))
 
         # gene set box
-        gs_box = qw.QLineEdit(self)
-        gs_box.setFont(qg.QFont("Times", 11))
+        self.gs_box = qw.QLineEdit(self)
+        self.gs_box.setFont(qg.QFont("Times", 11))
 
         # pathway name label
         pathway_name = qw.QLabel("Pathway Annotation Name:")
         pathway_name.setFont(qg.QFont("Times", 11))
 
         # pathway name box
-        pathway_box = qw.QLineEdit(self)
-        pathway_box.setFont(qg.QFont("Times", 11))
+        self.pathway_box = qw.QLineEdit(self)
+        self.pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        ok_button = qw.QPushButton("OK")
-        ok_button.clicked.connect(self.ok_press)
-        ok_button.setFont(qg.QFont("Times", 11))
+        self.ok_button = qw.QPushButton("OK")
+        # self.ok_button.clicked.connect(self.ok_press)
+        self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
@@ -283,12 +305,12 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
         layout.addWidget(gs_name, 1, 0, 1, 1)
-        layout.addWidget(gs_box, 1, 1, 1, 2)
+        layout.addWidget(self.gs_box, 1, 1, 1, 2)
         layout.addWidget(pathway_name,2, 0, 1, 1)
-        layout.addWidget(pathway_box, 2, 1, 1, 2)
+        layout.addWidget(self.pathway_box, 2, 1, 1, 2)
 
         layout.addWidget(cancel_button, 3, 2, 1, 1, qc.Qt.AlignRight)
-        layout.addWidget(ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
+        layout.addWidget(self.ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
 
 
         layout.setColumnStretch(1, 80)
