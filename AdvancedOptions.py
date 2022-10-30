@@ -37,9 +37,9 @@ class AdvancedOptions(qw.QMainWindow):
         #annd.setFont(qg.QFont("Times", 11))
 
         # highly variable checkbox
-        hv_label = qw.QCheckBox("Use highly variable")
-        hv_label.setFont(qg.QFont("Times", 11, 2))
-        hv_label.setChecked(True)
+        self.hv_label = qw.QCheckBox("Use highly variable")
+        self.hv_label.setFont(qg.QFont("Times", 11, 2))
+        self.hv_label.setChecked(True)
 
         # ndarray checkbox
         #nd_label = qw.QCheckBox("Use nd array")
@@ -73,9 +73,9 @@ class AdvancedOptions(qw.QMainWindow):
         self.delta_box.setFont(qg.QFont("Times", 11))
 
         # use weights checkbox
-        weights_label = qw.QCheckBox("Use weights")
-        weights_label.setFont(qg.QFont("Times", 11, 2))
-        weights_label.setChecked(True)
+        self.weights_label = qw.QCheckBox("Use weights")
+        self.weights_label.setFont(qg.QFont("Times", 11, 2))
+        self.weights_label.setChecked(True)
 
         # top genes facot label
         genes = qw.QLabel("Top genes factor")
@@ -101,14 +101,14 @@ class AdvancedOptions(qw.QMainWindow):
 
         # add widgets to the layout
         layout.addWidget(title, 0, 0, 1, 5, qc.Qt.AlignCenter)
-        layout.addWidget(hv_label, 1, 0, 1, 3)
+        layout.addWidget(self.hv_label, 1, 0, 1, 3)
         layout.addWidget(rho, 2, 0, 1, 3)
         layout.addWidget(self.rho_box, 2, 3, 1, 2)
         layout.addWidget(delta, 3, 0, 1, 3)
         layout.addWidget(self.delta_box, 3, 3, 1, 2)
         layout.addWidget(kappa, 4, 0, 1,3)
         layout.addWidget(self.kappa_box, 4, 3, 1, 2)
-        layout.addWidget(weights_label, 5, 0, 1, 2)
+        layout.addWidget(self.weights_label, 5, 0, 1, 2)
         layout.addWidget(genes, 6, 0, 1, 3)
         layout.addWidget(self.genes_box, 6, 3, 1, 2)
 
