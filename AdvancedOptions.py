@@ -86,10 +86,20 @@ class AdvancedOptions(qw.QMainWindow):
         self.genes_box.setText("50")
         self.genes_box.setFont(qg.QFont("Times", 11))
 
+        # ok button
+        upload_button = qw.QPushButton("OK")
+        upload_button.clicked.connect(self.ok_press)
+        upload_button.setFont(qg.QFont("Times", 11))
+
+        # cancel button
+        cancel_button = qw.QPushButton("Cancel")
+        cancel_button.clicked.connect(self.cancel_press)
+        cancel_button.setFont(qg.QFont("Times", 11))
 
 
 
-# add widgets to the layout
+
+        # add widgets to the layout
         layout.addWidget(title, 0, 0, 1, 5, qc.Qt.AlignCenter)
         layout.addWidget(hv_label, 1, 0, 1, 3)
         layout.addWidget(rho, 2, 0, 1, 3)
@@ -102,7 +112,8 @@ class AdvancedOptions(qw.QMainWindow):
         layout.addWidget(genes, 6, 0, 1, 3)
         layout.addWidget(self.genes_box, 6, 3, 1, 2)
 
-
+        layout.addWidget(upload_button, 7, 3,1,1,qc.Qt.AlignBottom)
+        layout.addWidget(cancel_button,7,4,1,1,qc.Qt.AlignBottom)
 
 
         layout.setRowStretch(5, 100)
@@ -119,8 +130,15 @@ class AdvancedOptions(qw.QMainWindow):
 
         # self.show()
 
+    def ok_press(self):
+        newWindow = qw.QMessageBox(self.wid)
+        newWindow.setText("Closes and updates spectra parameters")
+        newWindow.exec()
 
-    
+    def cancel_press(self):
+        self.close()
+
+
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
     ex = AdvancedOptions()

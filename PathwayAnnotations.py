@@ -229,7 +229,7 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
         pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("Upload")
+        upload_button = qw.QPushButton("OK")
         upload_button.clicked.connect(self.ok_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
@@ -306,7 +306,7 @@ class newGeneSetAnnotationWindow(qw.QMainWindow):
         pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("Upload")
+        upload_button = qw.QPushButton("OK")
         upload_button.clicked.connect(self.ok_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
@@ -384,7 +384,7 @@ class newGeneAnnotationWindow(qw.QMainWindow):
         pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("Upload")
+        upload_button = qw.QPushButton("OK")
         upload_button.clicked.connect(self.ok_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
@@ -464,7 +464,7 @@ class editGeneAnnotationWindow(qw.QMainWindow):
         pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("Upload")
+        upload_button = qw.QPushButton("OK")
         upload_button.clicked.connect(self.ok_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
