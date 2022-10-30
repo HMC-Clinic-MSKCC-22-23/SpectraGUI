@@ -4,13 +4,23 @@ import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
 import spectra as spc
+import scanpy as sc
+import matplotlib
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+matplotlib.use("Qt5Agg")
 
 class OutputPage(qw.QMainWindow):
 
-    def __init__(self, anndata, gene_dict, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes):
+    def __init__(self, anndata_path, gene_dict, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes):
 
-        model = spc.est_spectra(adata = anndata,  gene_set_dictionary = gene_dict, cell_type_key = "cell_type", lam = lambda_val, use_highly_variable = highly_var, 
-                                    rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+        anndata = sc.read_h5ad(anndata_path)
+        sc.set_figure_params(facecolor="F0F0F0")
+
+        #model = spc.est_spectra(adata = anndata,  gene_set_dictionary = gene_dict, cell_type_key = "cell_type", lam = lambda_val, use_highly_variable = highly_var, 
+        #                            rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+
+
+        self.umap_figure = sc.pl.umap(anndata, title = "UMAP", na_color = "gray", frameon = False, use_raw = False, show = False, return_fig= True)
 
         self.adata = anndata
         self.gene_dictionary = gene_dict
@@ -85,8 +95,7 @@ class OutputPage(qw.QMainWindow):
         topWidgetsLayout.addWidget(pathwayWidget,0,0,1,1)
 
         # umap/tsne map
-        umap_temp = qw.QLabel("UMAP/TSNE GRAPH HERE")
-        umap_temp.setFrameShape(qw.QFrame.Box)
+        umap_temp = FigureCanvasQTAgg(self.umap_figure)
         topWidgetsLayout.addWidget(umap_temp,0,1,1,1,qc.Qt.AlignCenter) # add to top widget
 
         # gene-gene graph
