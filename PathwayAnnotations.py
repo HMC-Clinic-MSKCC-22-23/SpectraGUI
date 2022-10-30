@@ -3,6 +3,7 @@ import sys
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
+import json
 
 class PathwayAnnotations(qw.QMainWindow):
     def __init__(self):
@@ -12,11 +13,12 @@ class PathwayAnnotations(qw.QMainWindow):
         self.top = 100
         self.width = 800
         self.height = 900
-        self.genes_dict = {} # should this get passed as a prop??
+        self.genes_dict = {}
         self.edit_gene_set = editGeneSetAnnotationWindow()
         self.edit_gene = editGeneAnnotationWindow()
         self.new_gene = newGeneAnnotationWindow()
         self.new_gene_set = newGeneSetAnnotationWindow()
+        self.current_gene_set = None
         self.initEditAnnotations()
 
     # probably needs a close event
@@ -46,10 +48,12 @@ class PathwayAnnotations(qw.QMainWindow):
         gene_set_label = qw.QLabel("Gene-Set Annotations")
         gene_set_label.setFont(qg.QFont("Times",12,2))
 
-        gene_set_table = qw.QTableWidget()
-        gene_set_table.setColumnCount(2)
-        gene_set_table.setHorizontalHeaderLabels(["Gene-Sets", "Pathway Names"])
-        # do we need to update table on init? yes if it is a prop
+        self.gene_set_table = qw.QTableWidget()
+        self.gene_set_table.setColumnCount(2)
+        self.gene_set_table.setHorizontalHeaderLabels(["Gene-Sets", "Pathway Names"])
+        header = self.gene_set_table.horizontalHeader()
+        header.setSectionResizeMode(0, qw.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, qw.QHeaderView.Stretch)
 
         delete_gene_set_button = qw.QPushButton("Delete")
         delete_gene_set_button.clicked.connect(self.delete_gene_set_press)
@@ -70,9 +74,12 @@ class PathwayAnnotations(qw.QMainWindow):
         gene_box_label = qw.QLabel("Genes")
         gene_box_label.setFont(qg.QFont("Times",12,2))
 
-        gene_table = qw.QTableWidget()
-        gene_table.setColumnCount(2)
-        gene_table.setHorizontalHeaderLabels(["Pathway Names", "Genes"])
+        self.gene_table = qw.QTableWidget()
+        self.gene_table.setColumnCount(2)
+        self.gene_table.setHorizontalHeaderLabels(["Pathway Names", "Genes"])
+        header = self.gene_table.horizontalHeader()
+        header.setSectionResizeMode(0, qw.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, qw.QHeaderView.Stretch)
 
         delete_gene_box_button = qw.QPushButton("Delete")
         delete_gene_box_button.clicked.connect(self.delete_gene_press)
@@ -103,13 +110,16 @@ class PathwayAnnotations(qw.QMainWindow):
         cancel_button.clicked.connect(self.cancel_press)
         cancel_button.setFont(qg.QFont("Times", 11))
 
+        # setting up the table connection
+        self.gene_set_table.itemDoubleClicked.connect(self.propogate_gene_table)
+
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
         
 
         # gene set annotations layout
         gene_set_layout.addWidget(gene_set_label,0,0,1,1,qc.Qt.AlignBottom)
-        gene_set_layout.addWidget(gene_set_table,1,0,3,8)
+        gene_set_layout.addWidget(self.gene_set_table,1,0,3,8)
         gene_set_layout.addWidget(delete_gene_set_button,4,7,1,1,qc.Qt.AlignBottom)
         gene_set_layout.addWidget(edit_gene_set_button,4,6,1,1,qc.Qt.AlignBottom)
         gene_set_layout.addWidget(add_gene_set_button,4,5,1,1,qc.Qt.AlignBottom)
@@ -117,7 +127,7 @@ class PathwayAnnotations(qw.QMainWindow):
 
         # genes layout
         gene_box_layout.addWidget(gene_box_label,0,0,1,1,qc.Qt.AlignBottom)
-        gene_box_layout.addWidget(gene_table,1,0,3,8)
+        gene_box_layout.addWidget(self.gene_table,1,0,3,8)
         gene_box_layout.addWidget(delete_gene_box_button,4,7,1,1,qc.Qt.AlignBottom)
         gene_box_layout.addWidget(edit_gene_box_button,4,6,1,1,qc.Qt.AlignBottom)
         gene_box_layout.addWidget(add_gene_box_button,4,5,1,1,qc.Qt.AlignBottom)
@@ -161,15 +171,43 @@ class PathwayAnnotations(qw.QMainWindow):
 
     def edit_gene_press(self):
         self.edit_gene.show()
+        self.edit_gene.ok_button.clicked.connect(self.save_gene_edit)
+
+    def save_gene_edit(self): 
+        new_gene = {self.edit_gene.pathway_box.text() : self.edit_gene.gene_box.text()}
+        current_dict = self.genes_dict.get(self.current_gene_set)
+        current_dict = current_dict | new_gene
+        self.genes_dict.update({self.current_gene_set : current_dict})
+        self.updateTable(current_dict, self.gene_table)
+        self.updateTable(self.genes_dict, self.gene_set_table)
+        self.edit_gene.hide()
     
     def edit_gene_set_press(self):
         self.edit_gene_set.show()
 
     def add_gene_press(self):
         self.new_gene.show()
+        self.new_gene.ok_button.clicked.connect(self.save_new_gene)
+
+    def save_new_gene(self): 
+        new_gene = {self.new_gene.pathway_box.text() : self.new_gene.gene_box.text()}
+        current_dict = self.genes_dict.get(self.current_gene_set)
+        current_dict = current_dict | new_gene
+        self.genes_dict.update({self.current_gene_set : current_dict})
+        self.updateTable(current_dict, self.gene_table)
+        self.updateTable(self.genes_dict, self.gene_set_table)
+        self.new_gene.hide()
 
     def add_gene_set_press(self):
         self.new_gene_set.show()
+        self.new_gene_set.ok_button.clicked.connect(self.save_new_gene_set)
+
+    def save_new_gene_set(self):
+        new_gs = {self.new_gene_set.gs_box.text() : json.loads(self.new_gene_set.pathway_box.text())}
+        self.genes_dict = self.genes_dict | new_gs
+        self.updateTable(self.genes_dict, self.gene_set_table)
+        self.new_gene_set.hide()
+        
     
     def cancel_press(self):
         self.close()
@@ -178,11 +216,14 @@ class PathwayAnnotations(qw.QMainWindow):
         table.setRowCount(len(dict.keys()))
 
         for row in range(0,len(dict.keys())):
-            keyVal = qw.QTableWidgetItem(str(dict.keys()[row]))
-            valueVal = qw.QTableWidgetItem(str(dict.get(dict.keys()[row])))
+            keyVal = qw.QTableWidgetItem(str(list(dict.keys())[row]))
+            valueVal = qw.QTableWidgetItem(str(dict.get(list(dict.keys())[row])))
             table.setItem(row, 0, keyVal)
             table.setItem(row, 1, valueVal)
-
+    
+    def propogate_gene_table(self):
+        self.updateTable(self.genes_dict.get(self.gene_set_table.item(self.gene_set_table.currentRow(),0).text()),self.gene_table)
+        self.current_gene_set = self.gene_set_table.item(self.gene_set_table.currentRow(),0).text()
         
 
 class editGeneSetAnnotationWindow(qw.QMainWindow):
@@ -229,9 +270,9 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
         pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("OK")
-        upload_button.clicked.connect(self.ok_press)
-        upload_button.setFont(qg.QFont("Times", 11))
+        ok_button = qw.QPushButton("OK")
+        ok_button.clicked.connect(self.ok_press)
+        ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
@@ -247,7 +288,7 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
         layout.addWidget(pathway_box, 2, 1, 1, 2)
 
         layout.addWidget(cancel_button, 3, 2, 1, 1, qc.Qt.AlignRight)
-        layout.addWidget(upload_button, 3, 1, 1, 1, qc.Qt.AlignRight)
+        layout.addWidget(ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
 
 
         layout.setColumnStretch(1, 80)
@@ -294,21 +335,21 @@ class newGeneSetAnnotationWindow(qw.QMainWindow):
         gs_name.setFont(qg.QFont("Times", 11))
 
         # gene set box
-        gs_box = qw.QLineEdit(self)
-        gs_box.setFont(qg.QFont("Times", 11))
+        self.gs_box = qw.QLineEdit(self)
+        self.gs_box.setFont(qg.QFont("Times", 11))
 
         # pathway name label
         pathway_name = qw.QLabel("Pathway Annotation Name:")
         pathway_name.setFont(qg.QFont("Times", 11))
 
         # pathway name box
-        pathway_box = qw.QLineEdit(self)
-        pathway_box.setFont(qg.QFont("Times", 11))
+        self.pathway_box = qw.QLineEdit(self)
+        self.pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("OK")
-        upload_button.clicked.connect(self.ok_press)
-        upload_button.setFont(qg.QFont("Times", 11))
+        self.ok_button = qw.QPushButton("OK")
+        # self.ok_button.clicked.connect(self.ok_press)
+        self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
@@ -319,12 +360,12 @@ class newGeneSetAnnotationWindow(qw.QMainWindow):
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
         layout.addWidget(gs_name, 1, 0, 1, 1)
-        layout.addWidget(gs_box, 1, 1, 1, 2)
+        layout.addWidget(self.gs_box, 1, 1, 1, 2)
         layout.addWidget(pathway_name,2, 0, 1, 1)
-        layout.addWidget(pathway_box, 2, 1, 1, 2)
+        layout.addWidget(self.pathway_box, 2, 1, 1, 2)
 
         layout.addWidget(cancel_button, 3, 2, 1, 1, qc.Qt.AlignRight)
-        layout.addWidget(upload_button, 3, 1, 1, 1, qc.Qt.AlignRight)
+        layout.addWidget(self.ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
 
 
         layout.setColumnStretch(1, 80)
@@ -367,26 +408,26 @@ class newGeneAnnotationWindow(qw.QMainWindow):
         title = qw.QLabel("New Annotation")
         title.setFont(qg.QFont("Times", 12, 2))
 
-        # gene label
-        gene_name = qw.QLabel("Gene Name:")
-        gene_name.setFont(qg.QFont("Times", 11))
-
-        # gene set box
-        gene_box = qw.QLineEdit(self)
-        gene_box.setFont(qg.QFont("Times", 11))
-
         # pathway name label
         pathway_name = qw.QLabel("Pathway Annotation Name:")
         pathway_name.setFont(qg.QFont("Times", 11))
 
         # pathway name box
-        pathway_box = qw.QLineEdit(self)
-        pathway_box.setFont(qg.QFont("Times", 11))
+        self.pathway_box = qw.QLineEdit(self)
+        self.pathway_box.setFont(qg.QFont("Times", 11))
+
+        # gene label
+        gene_name = qw.QLabel("Gene Name:")
+        gene_name.setFont(qg.QFont("Times", 11))
+
+        # gene set box
+        self.gene_box = qw.QLineEdit(self)
+        self.gene_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("OK")
-        upload_button.clicked.connect(self.ok_press)
-        upload_button.setFont(qg.QFont("Times", 11))
+        self.ok_button = qw.QPushButton("OK")
+        # self.ok_button.clicked.connect(self.ok_press)
+        self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
@@ -397,12 +438,12 @@ class newGeneAnnotationWindow(qw.QMainWindow):
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
         layout.addWidget(pathway_name,1, 0, 1, 1)
-        layout.addWidget(pathway_box, 1, 1, 1, 2)
+        layout.addWidget(self.pathway_box, 1, 1, 1, 2)
         layout.addWidget(gene_name, 2, 0, 1, 1)
-        layout.addWidget(gene_box, 2, 1, 1, 2)
+        layout.addWidget(self.gene_box, 2, 1, 1, 2)
 
         layout.addWidget(cancel_button, 3, 2, 1, 1, qc.Qt.AlignRight)
-        layout.addWidget(upload_button, 3, 1, 1, 1, qc.Qt.AlignRight)
+        layout.addWidget(self.ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
     
 
         layout.setColumnStretch(1, 80)
@@ -452,21 +493,21 @@ class editGeneAnnotationWindow(qw.QMainWindow):
         gene_name.setFont(qg.QFont("Times", 11))
 
         # gene set box
-        gene_box = qw.QLineEdit(self)
-        gene_box.setFont(qg.QFont("Times", 11))
+        self.gene_box = qw.QLineEdit(self)
+        self.gene_box.setFont(qg.QFont("Times", 11))
 
         # pathway name label
         pathway_name = qw.QLabel("Pathway Annotation Name:")
         pathway_name.setFont(qg.QFont("Times", 11))
 
         # pathway name box
-        pathway_box = qw.QLineEdit(self)
-        pathway_box.setFont(qg.QFont("Times", 11))
+        self.pathway_box = qw.QLineEdit(self)
+        self.pathway_box.setFont(qg.QFont("Times", 11))
 
         # ok button
-        upload_button = qw.QPushButton("OK")
-        upload_button.clicked.connect(self.ok_press)
-        upload_button.setFont(qg.QFont("Times", 11))
+        self.ok_button = qw.QPushButton("OK")
+        # self.ok_button.clicked.connect(self.ok_press)
+        self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
@@ -477,12 +518,12 @@ class editGeneAnnotationWindow(qw.QMainWindow):
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8,qc.Qt.AlignCenter)
         layout.addWidget(pathway_name,1, 0, 1, 1)
-        layout.addWidget(pathway_box, 1, 1, 1, 2)
+        layout.addWidget(self.pathway_box, 1, 1, 1, 2)
         layout.addWidget(gene_name, 2, 0, 1, 1)
-        layout.addWidget(gene_box, 2, 1, 1, 2)
+        layout.addWidget(self.gene_box, 2, 1, 1, 2)
 
         layout.addWidget(cancel_button, 3, 2, 1, 1, qc.Qt.AlignRight)
-        layout.addWidget(upload_button, 3, 1, 1, 1, qc.Qt.AlignRight)
+        layout.addWidget(self.ok_button, 3, 1, 1, 1, qc.Qt.AlignRight)
     
 
         layout.setColumnStretch(1, 80)
