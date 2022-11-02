@@ -203,6 +203,8 @@ class PathwayAnnotations(qw.QMainWindow):
         self.edit_gene_set.hide()
 
     def add_gene_press(self):
+        self.new_gene.gene_box.setText("")
+        self.new_gene_set.pathway_box.setText("")
         self.new_gene.show()
         self.new_gene.ok_button.clicked.connect(self.save_new_gene)
 
@@ -216,6 +218,8 @@ class PathwayAnnotations(qw.QMainWindow):
         self.new_gene.hide()
 
     def add_gene_set_press(self):
+        self.new_gene_set.gs_box.setText("")
+        self.new_gene_set.pathway_box.setText("")
         self.new_gene_set.show()
         self.new_gene_set.ok_button.clicked.connect(self.save_new_gene_set)
 
