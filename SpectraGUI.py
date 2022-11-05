@@ -2,7 +2,7 @@
 import sys
 import PyQt5.QtWidgets as qw
 import InputPage as ip
-import OutputPage as op
+import OutputPage2 as op
 import scanpy as sc
 from spectra import spectra as spc
 
@@ -17,6 +17,7 @@ class SpectraGUI:
         if(self.input.run_button_press()):
             anndata_path = self.input.annd_box.text()
             gene_dict = self.input.path_ann.genes_dict
+            cell_type_key = self.input.ctype_box.text()
 
             lambda_val = float(self.input.lam_box.text())
 
@@ -29,9 +30,9 @@ class SpectraGUI:
 
             self.input.hide()
 
-            self.output = op.OutputPage(anndata_path, gene_dict, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes)
+            self.output = op.OutputPage2(anndata_path, gene_dict, cell_type_key, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes)
 
-            self.output.show()
+            self.output.MainWindow.show()
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)

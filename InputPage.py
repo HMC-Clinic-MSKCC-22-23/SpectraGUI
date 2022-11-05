@@ -61,6 +61,15 @@ class InputPage(qw.QMainWindow):
         pann_edit_button.setFont(qg.QFont("Times", 11))
 
         # lambda label
+        ctype = qw.QLabel("AnnData key for cell type:")
+        ctype.setFont(qg.QFont("Times", 11))
+
+        # lambda input box
+        self.ctype_box = qw.QLineEdit(self)
+        self.ctype_box.setText("cell_type")
+        self.ctype_box.setFont(qg.QFont("Times", 11))
+
+        # lambda label
         lam = qw.QLabel("Lambda value:")
         lam.setFont(qg.QFont("Times", 11))
 
@@ -89,13 +98,15 @@ class InputPage(qw.QMainWindow):
         layout.addWidget(self.annd_box, 1, 3, 1, 2)
         layout.addWidget(pann, 2, 0, 1, 3)
         layout.addWidget(pann_edit_button, 2, 4)
-        layout.addWidget(lam, 3, 0, 1, 3)
-        layout.addWidget(self.lam_box, 3, 4)
-        layout.addWidget(adv, 4, 0, 1, 3)
-        layout.addWidget(adv_edit_button, 4, 4)
-        layout.addWidget(self.run_button, 6, 0, 1, 5, qc.Qt.AlignCenter)
+        layout.addWidget(ctype, 3, 0, 1, 3)
+        layout.addWidget(self.ctype_box, 3, 4)
+        layout.addWidget(lam, 4, 0, 1, 3)
+        layout.addWidget(self.lam_box, 4, 4)
+        layout.addWidget(adv, 5, 0, 1, 3)
+        layout.addWidget(adv_edit_button, 5, 4)
+        layout.addWidget(self.run_button, 7, 0, 1, 5, qc.Qt.AlignCenter)
 
-        layout.setRowStretch(5, 100)
+        layout.setRowStretch(6, 100)
         layout.setHorizontalSpacing(80)
 
 
