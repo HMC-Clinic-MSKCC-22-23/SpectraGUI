@@ -123,11 +123,16 @@ class OutputPage2(object):
         self.checkBox.setObjectName("checkBox")
 
 
+        # rerun button
+        self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
+        self.reRunButton.setGeometry(QtCore.QRect(280, 420, 100, 32))
+        self.reRunButton.setObjectName("reRunButton")
         
+
 
         # gene gene button
         self.geneGeneButton = QtWidgets.QPushButton(self.MainWindow)
-        self.geneGeneButton.setGeometry(QtCore.QRect(30, 420, 113, 32))
+        self.geneGeneButton.setGeometry(QtCore.QRect(20, 420, 113, 32))
         self.geneGeneButton.setObjectName("geneGeneButton")
         # self.geneGeneButton.clicked.connect(self.genePopUp(self))
 
@@ -173,7 +178,7 @@ class OutputPage2(object):
 
 
         self.label_2 = QtWidgets.QLabel(self.MainWindow)
-        self.label_2.setGeometry(QtCore.QRect(460, 270, 60, 16))
+        self.label_2.setGeometry(QtCore.QRect(460, 270, 100, 16))
         self.label_2.setObjectName("label_2")
 
 
@@ -183,7 +188,7 @@ class OutputPage2(object):
 
 
         self.pushButton_2 = QtWidgets.QPushButton(self.MainWindow)
-        self.pushButton_2.setGeometry(QtCore.QRect(152, 420, 131, 32))
+        self.pushButton_2.setGeometry(QtCore.QRect(142, 420, 131, 32))
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.pressed.connect(self.test_umap)
 
@@ -197,6 +202,7 @@ class OutputPage2(object):
         self.label_3.raise_()
         self.pushButton_2.raise_()
         self.geneGeneButton.raise_()
+        self.reRunButton.raise_()
         self.umap.raise_()
 
         self.retranslateUi()
@@ -215,7 +221,8 @@ class OutputPage2(object):
         self.label_2.setText(_translate("MainWindow", "Heat map"))
         self.label_3.setText(_translate("MainWindow", "Umap Coloration"))
         self.pushButton_2.setText(_translate("MainWindow", "Recolor Umap"))
-        self.geneGeneButton.setText(_translate("MainWindow", "SPECTRA model"))
+        self.geneGeneButton.setText(_translate("MainWindow", "View Gene-gene graph"))
+        self.reRunButton.setText(_translate("MainWindow", "Run Again"))
 
 
 if __name__ == "__main__":

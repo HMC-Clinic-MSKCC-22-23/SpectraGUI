@@ -4,6 +4,7 @@ import PyQt5.QtWidgets as qw
 import InputPage as ip
 import OutputPage2 as op
 import scanpy as sc
+
 from spectra import spectra as spc
 
 class SpectraGUI:
@@ -31,8 +32,12 @@ class SpectraGUI:
             self.input.hide()
 
             self.output = op.OutputPage2(anndata_path, gene_dict, cell_type_key, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes)
-
+            self.output.reRunButton.clicked.connect(self.run_spectra_again)
             self.output.MainWindow.show()
+
+    def run_spectra_again(self):
+        self.output.MainWindow.hide()
+        self.input.show()
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
