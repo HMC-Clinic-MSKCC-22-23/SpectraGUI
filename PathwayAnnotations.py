@@ -22,7 +22,14 @@ class PathwayAnnotations(qw.QMainWindow):
         self.current_pathway = None
         self.initEditAnnotations()
 
-    # probably needs a close event
+
+    def closeEvent(self, a0: qg.QCloseEvent) -> None:
+        self.edit_gene_set.close()
+        self.edit_gene.close()
+        self.new_gene.close()
+        self.new_gene_set.close()
+        return super().closeEvent(a0)
+
 
     def initEditAnnotations(self):
 
