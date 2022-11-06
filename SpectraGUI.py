@@ -4,7 +4,6 @@ import PyQt5.QtWidgets as qw
 import InputPage as ip
 import OutputPage2 as op
 import scanpy as sc
-
 from spectra import spectra as spc
 
 class SpectraGUI:
@@ -20,12 +19,32 @@ class SpectraGUI:
             gene_dict = self.input.path_ann.genes_dict
             cell_type_key = self.input.ctype_box.text()
 
-            lambda_val = float(self.input.lam_box.text())
+            try:
+                lambda_val = float(self.input.lam_box.text())
+            except:
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("Lambda value isn't a number - try again")
+                newWindow.exec()
 
             highly_var = self.input.adv_op.hv_label.isChecked()
-            rho_val = float(self.input.adv_op.rho_box.text())
-            delta_val = float(self.input.adv_op.delta_box.text())
-            kappa_val = float(self.input.adv_op.kappa_box.text())
+            try:
+                rho_val = float(self.input.adv_op.rho_box.text())
+            except:
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("Rho value isn't a number - try again")
+                newWindow.exec()
+            try:
+                delta_val = float(self.input.adv_op.delta_box.text())
+            except:
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("Delta value isn't a number - try again")
+                newWindow.exec()
+            try:
+                kappa_val = float(self.input.adv_op.kappa_box.text())
+            except:
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("Kappa value isn't a number - try again")
+                newWindow.exec()
             use_weights = self.input.adv_op.weights_label.isChecked()
             top_genes = int(self.input.adv_op.genes_box.text())
 

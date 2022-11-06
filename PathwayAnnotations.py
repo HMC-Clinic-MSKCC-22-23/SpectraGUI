@@ -106,18 +106,13 @@ class PathwayAnnotations(qw.QMainWindow):
 
         # ok button
         upload_button = qw.QPushButton("Upload")
-        upload_button.clicked.connect(self.upload_edit_press)
+        upload_button.clicked.connect(self.csv_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
         cancel_button = qw.QPushButton("Cancel")
         cancel_button.clicked.connect(self.cancel_press)
         cancel_button.setFont(qg.QFont("Times", 11))
-
-        # display csv button
-        csv_button = qw.QPushButton("Display CSV")
-        csv_button.clicked.connect(self.csv_press)
-        csv_button.setFont(qg.QFont("Times", 11))
 
         # setting up the table connections
         self.gene_set_table.itemDoubleClicked.connect(self.propogate_gene_table)
@@ -159,51 +154,55 @@ class PathwayAnnotations(qw.QMainWindow):
         # self.show()
 
     def csv_press(self,fileName):
-        fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV",
+        try:
+            fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV",
                                                            (qc.QDir.homePath()), "CSV (*.csv *.tsv)")
-        ff = open(fileName, 'r')
-        mytext = ff.read()
+            ff = open(fileName, 'r')
+            mytext = ff.read()
         #            print(mytext)
-        ff.close()
+            ff.close()
         # self.genes.insertPlainText(fileName)
-        if fileName:
-            f = open(fileName, 'r')
-            with f:
-                self.fname = os.path.splitext(str(fileName))[0].split("/")[-1]
-                if mytext.count(';') <= mytext.count(','):  # tab?
-                    reader = csv.reader(f, delimiter=',')
-                    self.genes.clear()
-                    for row in reader:
-                        items = [field for field in row]
+            if fileName:
+                f = open(fileName, 'r')
+                with f:
+                    self.fname = os.path.splitext(str(fileName))[0].split("/")[-1]
+                    if mytext.count(';') <= mytext.count(','):  # tab?
+                        reader = csv.reader(f, delimiter=',')
+                        for row in reader:
+                            items = [field for field in row]
                         # self.genes.appendRow(items)
 
-                        i = 2
-                        if items[0] not in self.genes_dict:
-                            self.genes_dict[items[0]] = {}
-                        if items[1] not in self.genes_dict[items[0]]:
-                            self.genes_dict[items[0]][items[1]] = []
-                        while len(items) > i:
-                            if items[i] != "":
-                                self.genes_dict[items[0]][items[1]] += [items[i]]
-                            i += 1
+                            i = 2
+                            if items[0] not in self.genes_dict:
+                                self.genes_dict[items[0]] = {}
+                            if items[1] not in self.genes_dict[items[0]]:
+                                self.genes_dict[items[0]][items[1]] = []
+                            while len(items) > i:
+                                if items[i] != "":
+                                    self.genes_dict[items[0]][items[1]] += [items[i]]
+                                i += 1
 
                     # self.tableView.resizeColumnsToContents()
-                else:
-                    reader = csv.reader(f, delimiter='\t')
-                    self.genes.clear()
-                    for row in reader:
-                        items = [field for field in row]
+                    else:
+                        reader = csv.reader(f, delimiter='\t')
+                        for row in reader:
+                            items = [field for field in row]
                         # self.genes.appendRow(items)
 
-                        i = 2
-                        if items[0] not in self.genes_dict:
-                            self.genes_dict[items[0]] = {}
-                        if items[1] not in self.genes_dict[items[0]]:
-                            self.genes_dict[items[0]][items[1]] = []
-                        while len(items) > i:
-                            if items[i] != "":
-                                self.genes_dict[items[0]][items[1]] += [items[i]]
-                            i += 1
+                            i = 2
+                            if items[0] not in self.genes_dict:
+                                self.genes_dict[items[0]] = {}
+                            if items[1] not in self.genes_dict[items[0]]:
+                                self.genes_dict[items[0]][items[1]] = []
+                            while len(items) > i:
+                                if items[i] != "":
+                                    self.genes_dict[items[0]][items[1]] += [items[i]]
+                                i += 1
+            self.updateTable(self.genes_dict, self.gene_set_table)
+        except:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("Error in uploading file - try again")
+            newWindow.exec()
 
     def save_edit_press(self):
         self.hide()
@@ -226,23 +225,24 @@ class PathwayAnnotations(qw.QMainWindow):
             self.genes_dict.pop(self.current_gene_set)
             self.updateTable(self.genes_dict, self.gene_set_table)
 
-    def upload_edit_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("new window for uploading annotations")
-        newWindow.exec()
 
     def edit_gene_press(self):
         self.edit_gene.show()
         self.edit_gene.ok_button.clicked.connect(self.save_gene_edit)
 
     def save_gene_edit(self):
-        new_gene = {self.edit_gene.pathway_box.text(): self.edit_gene.gene_box.text()}
-        current_dict = self.genes_dict.get(self.current_gene_set)
-        current_dict = current_dict | new_gene
-        self.genes_dict.update({self.current_gene_set: current_dict})
-        self.updateTable(current_dict, self.gene_table)
-        self.updateTable(self.genes_dict, self.gene_set_table)
-        self.edit_gene.hide()
+        try:
+            new_gene = {self.edit_gene.pathway_box.text(): self.edit_gene.gene_box.text()}
+            current_dict = self.genes_dict.get(self.current_gene_set)
+            current_dict = current_dict | new_gene
+            self.genes_dict.update({self.current_gene_set: current_dict})
+            self.updateTable(current_dict, self.gene_table)
+            self.updateTable(self.genes_dict, self.gene_set_table)
+            self.edit_gene.hide()
+        except:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("Error saving gene annotation - try again")
+            newWindow.exec()
 
     def edit_gene_set_press(self):
         if self.current_gene_set is not None:
@@ -252,12 +252,17 @@ class PathwayAnnotations(qw.QMainWindow):
         self.edit_gene_set.ok_button.clicked.connect(self.save_gene_set_edit)
 
     def save_gene_set_edit(self):
-        new_pathway = {self.edit_gene_set.gs_box.text(): ast.literal_eval(self.edit_gene_set.pathway_box.text())}
-        self.current_gene_set = self.edit_gene_set.gs_box.text()
-        self.genes_dict.update(new_pathway)
-        self.updateTable(new_pathway.get(self.current_gene_set), self.gene_table)
-        self.updateTable(self.genes_dict, self.gene_set_table)
-        self.edit_gene_set.hide()
+        try:
+            new_pathway = {self.edit_gene_set.gs_box.text(): ast.literal_eval(self.edit_gene_set.pathway_box.text())}
+            self.current_gene_set = self.edit_gene_set.gs_box.text()
+            self.genes_dict.update(new_pathway)
+            self.updateTable(new_pathway.get(self.current_gene_set), self.gene_table)
+            self.updateTable(self.genes_dict, self.gene_set_table)
+            self.edit_gene_set.hide()
+        except:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("Error saving gene set - try again")
+            newWindow.exec()
 
     def add_gene_press(self):
         self.new_gene.gene_box.setText("")
@@ -266,13 +271,18 @@ class PathwayAnnotations(qw.QMainWindow):
         self.new_gene.ok_button.clicked.connect(self.save_new_gene)
 
     def save_new_gene(self):
-        new_gene = {self.new_gene.pathway_box.text(): self.new_gene.gene_box.text()}
-        current_dict = self.genes_dict.get(self.current_gene_set)
-        current_dict = current_dict | new_gene
-        self.genes_dict.update({self.current_gene_set: current_dict})
-        self.updateTable(current_dict, self.gene_table)
-        self.updateTable(self.genes_dict, self.gene_set_table)
-        self.new_gene.hide()
+        try:
+            new_gene = {self.new_gene.pathway_box.text(): self.new_gene.gene_box.text()}
+            current_dict = self.genes_dict.get(self.current_gene_set)
+            current_dict = current_dict | new_gene
+            self.genes_dict.update({self.current_gene_set: current_dict})
+            self.updateTable(current_dict, self.gene_table)
+            self.updateTable(self.genes_dict, self.gene_set_table)
+            self.new_gene.hide()
+        except:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("Error adding new gene annotation - try again")
+            newWindow.exec()
 
     def add_gene_set_press(self):
         self.new_gene_set.gs_box.setText("")
@@ -281,10 +291,15 @@ class PathwayAnnotations(qw.QMainWindow):
         self.new_gene_set.ok_button.clicked.connect(self.save_new_gene_set)
 
     def save_new_gene_set(self):
-        new_gs = {self.new_gene_set.gs_box.text(): ast.literal_eval(self.new_gene_set.pathway_box.text())}
-        self.genes_dict = self.genes_dict | new_gs
-        self.updateTable(self.genes_dict, self.gene_set_table)
-        self.new_gene_set.hide()
+        try:
+            new_gs = {self.new_gene_set.gs_box.text(): ast.literal_eval(self.new_gene_set.pathway_box.text())}
+            self.genes_dict = self.genes_dict | new_gs
+            self.updateTable(self.genes_dict, self.gene_set_table)
+            self.new_gene_set.hide()
+        except:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("Error adding new gene set - try again")
+            newWindow.exec()
 
     def cancel_press(self):
         self.close()
@@ -354,7 +369,6 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
 
         # ok button
         self.ok_button = qw.QPushButton("OK")
-        # self.ok_button.clicked.connect(self.ok_press)
         self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
@@ -374,11 +388,6 @@ class editGeneSetAnnotationWindow(qw.QMainWindow):
 
         layout.setColumnStretch(1, 80)
         self.wid.setLayout(layout)
-
-    def ok_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Closes and updates table")
-        newWindow.exec()
 
     def cancel_press(self):
         self.close()
@@ -428,7 +437,6 @@ class newGeneSetAnnotationWindow(qw.QMainWindow):
 
         # ok button
         self.ok_button = qw.QPushButton("OK")
-        # self.ok_button.clicked.connect(self.ok_press)
         self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
@@ -448,11 +456,6 @@ class newGeneSetAnnotationWindow(qw.QMainWindow):
 
         layout.setColumnStretch(1, 80)
         self.wid.setLayout(layout)
-
-    def ok_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Closes and updates table")
-        newWindow.exec()
 
     def cancel_press(self):
         self.close()
@@ -502,7 +505,6 @@ class newGeneAnnotationWindow(qw.QMainWindow):
 
         # ok button
         self.ok_button = qw.QPushButton("OK")
-        # self.ok_button.clicked.connect(self.ok_press)
         self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
@@ -524,11 +526,6 @@ class newGeneAnnotationWindow(qw.QMainWindow):
         self.wid.setLayout(layout)
 
         self.wid.setLayout(layout)
-
-    def ok_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Closes and updates table")
-        newWindow.exec()
 
     def cancel_press(self):
         self.close()
@@ -578,7 +575,6 @@ class editGeneAnnotationWindow(qw.QMainWindow):
 
         # ok button
         self.ok_button = qw.QPushButton("OK")
-        # self.ok_button.clicked.connect(self.ok_press)
         self.ok_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
@@ -600,11 +596,6 @@ class editGeneAnnotationWindow(qw.QMainWindow):
         self.wid.setLayout(layout)
 
         self.wid.setLayout(layout)
-
-    def ok_press(self):
-        newWindow = qw.QMessageBox(self.wid)
-        newWindow.setText("Closes and updates table")
-        newWindow.exec()
 
     def cancel_press(self):
         self.close()
