@@ -9,8 +9,8 @@ class PathwayAnnotations(qw.QMainWindow):
     def __init__(self):
         super().__init__()
         self.title = "Edit Pathway Annotations"
-        self.left = 100
-        self.top = 100
+        self.left = 150
+        self.top = 150
         self.width = 800
         self.height = 900
         self.genes_dict = {}

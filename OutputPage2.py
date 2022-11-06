@@ -15,7 +15,8 @@ matplotlib.use("Qt5Agg")
 from spectra import spectra as spc
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
 
 class OutputPage2(object):
 
@@ -57,7 +58,9 @@ class OutputPage2(object):
     def draw_umap(self):
 
         self.ax = self.canvas.figure.subplots()
-        self.ax.set_axis_off()
+        self.ax.grid(False)
+        self.ax.set_xticks([])
+        self.ax.set_yticks([])
         self.ax.set_title("UMAP")
         # if we have loaded anndata, draw colorless umap
         if self.anndata:
@@ -81,9 +84,9 @@ class OutputPage2(object):
 
         self.umap = QtWidgets.QFrame(self.MainWindow)
         # self.umap = FigureCanvasQTAgg(self.umap_figure)
-        self.umap.setGeometry(QtCore.QRect(0, 20, 331, 271))
-        self.umap.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.umap.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.umap.setGeometry(QtCore.QRect(0, 0, 331, 281))
+        # self.umap.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        # self.umap.setFrameShadow(QtWidgets.QFrame.Raised)
         self.umap.setObjectName("umapFrame")
 
         self.umap_box = QtWidgets.QVBoxLayout()
