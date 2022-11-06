@@ -3,7 +3,7 @@ import sys
 import PyQt5.QtWidgets as qw
 import PyQt5.QtCore as qc
 import PyQt5.QtGui as qg
-import ast
+import ast, os, csv, json
 
 
 class PathwayAnnotations(qw.QMainWindow):
