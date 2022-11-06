@@ -75,6 +75,7 @@ class OutputPage2(object):
             
         self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = 1.1, marker = ",", cmap = "inferno")
         self.canvas.draw()
+        self.canvas.print_figure("UMAP_plot.png")
 
     def setupUi(self):
 
@@ -83,10 +84,7 @@ class OutputPage2(object):
 
 
         self.umap = QtWidgets.QFrame(self.MainWindow)
-        # self.umap = FigureCanvasQTAgg(self.umap_figure)
         self.umap.setGeometry(QtCore.QRect(0, 0, 331, 281))
-        # self.umap.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        # self.umap.setFrameShadow(QtWidgets.QFrame.Raised)
         self.umap.setObjectName("umapFrame")
 
         self.umap_box = QtWidgets.QVBoxLayout()
