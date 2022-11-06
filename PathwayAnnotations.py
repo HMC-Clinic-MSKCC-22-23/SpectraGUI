@@ -186,7 +186,6 @@ class PathwayAnnotations(qw.QMainWindow):
                             if items[i] != "":
                                 self.genes_dict[items[0]][items[1]] += [items[i]]
                             i += 1
-                    self.genes.insertPlainText(str(self.genes_dict))
 
                     # self.tableView.resizeColumnsToContents()
                 else:
@@ -205,7 +204,6 @@ class PathwayAnnotations(qw.QMainWindow):
                             if items[i] != "":
                                 self.genes_dict[items[0]][items[1]] += [items[i]]
                             i += 1
-                    self.genes.insertPlainText(str(self.genes_dict))
 
     def save_edit_press(self):
         self.hide()
