@@ -20,19 +20,8 @@ rcParams.update({'figure.autolayout': True})
 
 class OutputPage2(object):
 
-    # def __init__(self, anndata = None, gene_dict = None, cell_type_key = None, lambda_val = None, highly_var = None, rho_val = None, delta_val = None, kappa_val = None, use_weights = None, top_genes = None):
     def __init__(self, screen_width, screen_height, anndata = None, model = None):
         sc.set_figure_params(facecolor="F0F0F0")
-
-        # self.gene_dictionary = gene_dict
-        # self.cell_type_key = cell_type_key
-        # self.lam = lambda_val
-        # self.highly_var = highly_var
-        # self.rho = rho_val
-        # self.delta = delta_val
-        # self.kappa = kappa_val
-        # self.use_weights = use_weights
-        # self.top_genes = top_genes
 
         self.width = int(screen_width // 2.2)
         self.height = int(screen_height // 2.2)
@@ -49,10 +38,8 @@ class OutputPage2(object):
         return super().closeEvent(a0)
 
     def test_umap(self):
-        if self.curr_factor is not None:
-            self.curr_factor += 1
-        else:
-            self.curr_factor = 0
+        
+        self.curr_factor = self.dropdown.currentIndex()
 
         if self.anndata:
             self.recolor_umap()
@@ -110,24 +97,20 @@ class OutputPage2(object):
 
         self.dropdown = QtWidgets.QComboBox(self.MainWindow)
 
-        # for example 
-        # dict = {'sonia': {'brown': 'tan', 'braids': 'tired'}, 'elijah': {'black': 'blue', 'blonde': 'yawn'}, 'lucas': {'nike': 'finland', 'curly': 'sniffle'}, 'raffa': {'skate': 'fast', 'locs': 'long'}, 'amani': {'sleep': 'happy', 'work': 'sad'}}
-        
-        # def pathwayNames(d):
-            # names = []
-            # for pathway in d.values():
-                # names.extend([*pathway])
-            # return names
-
 
         # COLOR BY FACTOR CODE: ERROR SAYS ANNDATA HAS NO UNS ATTRIBUTE
         def colorByFactor():
-            factorList = []
-            for i in range(len(self.anndata.uns["SPECTRA_markers"])):
-                factorNames = ', '.join(self.anndata.uns["SPECTRA_markers"][i][:5])
-                factorString = "Factor " + str(i) + ": " + factorNames
-                factorList.append(factorString)
-            return factorList
+            if self.anndata:
+                factorList = []
+
+                for i in range(len(self.anndata.uns["SPECTRA_markers"])):
+                    factorNames = ', '.join(self.anndata.uns["SPECTRA_markers"][i][:5])
+                    factorString = "Factor " + str(i) + ": " + factorNames
+                    factorList.append(factorString)
+
+                return factorList
+            else:
+                return ["Factor 0", "Factor 1", "Factor 2", "Factor 3"]
 
 
 
@@ -174,52 +157,50 @@ class OutputPage2(object):
 
         # connected checkboxes to save button
         # save button is connected to function that saves what is checked.
-        # not 100% sure this string of connections holds 
 
         self.checkBox_adata = QtWidgets.QCheckBox()
         self.checkBox_adata.setText("Updated AnnData")
-        self.checkBox_adata.clicked.connect(self.save_button)
 
         self.save_options.addWidget(self.checkBox_adata, 1, 0)
 
         self.checkBox_model = QtWidgets.QCheckBox()
         self.checkBox_model.setText("SPECTRA model")
-        self.checkBox_model.clicked.connect(self.save_button)
 
         self.save_options.addWidget(self.checkBox_model, 1, 2)
 
         self.checkBox_umap = QtWidgets.QCheckBox()
         self.checkBox_umap.setText("UMAP figure")
-        self.checkBox_umap.clicked.connect(self.save_button)
 
         self.save_options.addWidget(self.checkBox_umap, 2, 0)
 
         self.checkBox_heatmap = QtWidgets.QCheckBox()
         self.checkBox_heatmap.setText("Heatmap figure")
-        self.checkBox_heatmap.clicked.connect(self.save_button)
         
         self.save_options.addWidget(self.checkBox_heatmap, 2, 2)
 
 
         # SAVE DATA CHECK, dont know about "filename"
-        def saveData(self, filename):
+        def saveData():
             if self.checkBox_adata.isChecked() == True:
-                self.anndata.obs.to_csv(filename)
+                self.anndata.write_h5ad("new_annData.h5ad")
+
             if self.checkBox_model.isChecked() == True:
-                print("heatmap save")
+                print("model save")
                 # self.umap_canvas.print_figure()
+
             if self.checkBox_umap.isChecked() == True:
-                self.umap_canvas.print_figure(filename)
+                self.umap_canvas.print_figure("UMAP_figure.png")
+
             if self.checkBox_heatmap.isChecked() == True:
-                self.umap_canvas.print_figure(filename)
+                print("heatmap save")
+                # self.umap_canvas.print_figure("Heatmap_figure.png")
 
 
 
 
         self.save_button = QtWidgets.QPushButton()
         self.save_button.setText("Save")
-        self.save_button.clicked.connect(self.saveData(filename))
-
+        self.save_button.clicked.connect(saveData)
 
         self.save_options.addWidget(self.save_button, 3, 2)
 
