@@ -10,13 +10,13 @@ from os.path import exists
 
 class InputPage(qw.QMainWindow):
 
-    def __init__(self, ):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Spectra input screen"
         self.left = 100
         self.top = 100
-        self.width = 400
-        self.height = 300
+        self.width = int(screen_width // 4)
+        self.height = int(screen_height // 4)
         self.path_ann = pa.PathwayAnnotations()
         self.adv_op = ao.AdvancedOptions()
         self.initUI()
@@ -95,26 +95,26 @@ class InputPage(qw.QMainWindow):
         # add widgets to the layout
         layout.addWidget(title, 0, 0, 1, 5, qc.Qt.AlignCenter)
         layout.addWidget(annd, 1, 0, 1, 3)
-        layout.addWidget(self.annd_box, 1, 3, 1, 2)
-        layout.addWidget(pann, 2, 0, 1, 3)
-        layout.addWidget(pann_edit_button, 2, 4)
-        layout.addWidget(ctype, 3, 0, 1, 3)
-        layout.addWidget(self.ctype_box, 3, 4)
+        layout.addWidget(self.annd_box, 1, 2, 1, 3)
+        layout.addWidget(ctype, 2, 0, 1, 3)
+        layout.addWidget(self.ctype_box, 2, 3, 1, 2)
+        layout.addWidget(pann, 3, 0, 1, 3)
+        layout.addWidget(pann_edit_button, 3, 4)
         layout.addWidget(lam, 4, 0, 1, 3)
         layout.addWidget(self.lam_box, 4, 4)
         layout.addWidget(adv, 5, 0, 1, 3)
         layout.addWidget(adv_edit_button, 5, 4)
         layout.addWidget(self.run_button, 7, 0, 1, 5, qc.Qt.AlignCenter)
 
-        layout.setRowStretch(6, 100)
-        layout.setHorizontalSpacing(80)
+        layout.setRowStretch(6, self.height // 3)
+        layout.setHorizontalSpacing(self.height // 4)
 
 
-        layout.setColumnStretch(0, 80)
-        layout.setColumnStretch(1, 80)
-        layout.setColumnStretch(2, 80)
-        layout.setColumnStretch(3, 80)
-        layout.setColumnStretch(4, 80)
+        layout.setColumnStretch(0, self.width // 3)
+        layout.setColumnStretch(1, self.width // 8)
+        layout.setColumnStretch(2, self.width // 8)
+        layout.setColumnStretch(3, self.width // 5)
+        layout.setColumnStretch(4, self.width // 5)
 
 
         self.wid.setLayout(layout)
@@ -139,14 +139,12 @@ class InputPage(qw.QMainWindow):
             newWindow.exec()
             return False
         else: 
-            newWindow.setText("Running in progress, with AnnData from \'" + self.annd_box.text() + "\' and a rho value of " + self.adv_op.rho_box.text())
-            newWindow.exec()
             return True
         
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
-    ex = InputPage()
+    ex = InputPage(app.primaryScreen().size().width(), app.primaryScreen().size().height())
     sys.exit(app.exec_())
 
 
