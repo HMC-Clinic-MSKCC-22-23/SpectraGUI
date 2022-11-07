@@ -8,8 +8,10 @@ from spectra import spectra as spc
 
 class SpectraGUI:
 
-    def __init__(self) -> None:
-        self.input = ip.InputPage()
+    def __init__(self, height, width) -> None:
+        self.screen_height = height
+        self.screen_width = width
+        self.input = ip.InputPage(self.screen_height, self.screen_width)
         self.input.run_button.clicked.connect(self.run_and_quit)
 
 
@@ -50,17 +52,21 @@ class SpectraGUI:
 
             self.input.hide()
 
-            self.output = op.OutputPage2(anndata_path, gene_dict, cell_type_key, lambda_val, highly_var, rho_val, delta_val, kappa_val, use_weights, top_genes)
+            adata = sc.read_h5ad(anndata_path)
+            model = spc.est_spectra(adata = self.adata,  gene_set_dictionary = gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
+                                    rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+
+            self.output = op.OutputPage2(adata, model, self.screen_height, self.screen_width)
             self.output.reRunButton.clicked.connect(self.run_spectra_again)
             self.output.MainWindow.show()
-
+  
     def run_spectra_again(self):
         self.output.MainWindow.hide()
         self.input.show()
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
-    ex = SpectraGUI()
+    ex = SpectraGUI(app.primaryScreen().size().height(), app.primaryScreen().size().width())
     sys.exit(app.exec_())
 
 

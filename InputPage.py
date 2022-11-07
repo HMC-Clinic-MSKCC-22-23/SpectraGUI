@@ -10,7 +10,7 @@ from os.path import exists
 
 class InputPage(qw.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, ):
         super().__init__()
         self.title = "Spectra input screen"
         self.left = 100

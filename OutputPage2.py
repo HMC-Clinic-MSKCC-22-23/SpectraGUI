@@ -20,28 +20,22 @@ rcParams.update({'figure.autolayout': True})
 
 class OutputPage2(object):
 
-    def __init__(self, anndata_path = None, gene_dict = None, cell_type_key = None, lambda_val = None, highly_var = None, rho_val = None, delta_val = None, kappa_val = None, use_weights = None, top_genes = None):
-
+    # def __init__(self, anndata = None, gene_dict = None, cell_type_key = None, lambda_val = None, highly_var = None, rho_val = None, delta_val = None, kappa_val = None, use_weights = None, top_genes = None):
+    def __init__(self, anndata = None, model = None):
         sc.set_figure_params(facecolor="F0F0F0")
 
-        self.gene_dictionary = gene_dict
-        self.cell_type_key = cell_type_key
-        self.lam = lambda_val
-        self.highly_var = highly_var
-        self.rho = rho_val
-        self.delta = delta_val
-        self.kappa = kappa_val
-        self.use_weights = use_weights
-        self.top_genes = top_genes
+        # self.gene_dictionary = gene_dict
+        # self.cell_type_key = cell_type_key
+        # self.lam = lambda_val
+        # self.highly_var = highly_var
+        # self.rho = rho_val
+        # self.delta = delta_val
+        # self.kappa = kappa_val
+        # self.use_weights = use_weights
+        # self.top_genes = top_genes
         self.curr_factor = None
 
-        if anndata_path != None:
-            self.anndata = sc.read_h5ad(anndata_path)
-        else:
-            self.anndata = None
-
-        # self.model = spc.est_spectra(adata = self.anndata,  gene_set_dictionary = gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
-        #                             rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+        self.anndata = anndata
 
         self.MainWindow = QtWidgets.QWidget()
         self.setupUi()
