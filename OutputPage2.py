@@ -59,14 +59,14 @@ class OutputPage2(object):
 
     def draw_umap(self):
 
-        self.ax = self.canvas.figure.subplots()
+        self.ax = self.umap_canvas.figure.subplots()
         self.ax.grid(False)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
         self.ax.set_title("UMAP")
         # if we have loaded anndata, draw colorless umap
         if self.anndata:
-            self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = 1, marker = ",")
+            self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = 2)
         else: # just draw a placeholder
             self.umap_plot = self.ax.plot([2,5,4,3.5,4,5,2])
     
@@ -75,163 +75,129 @@ class OutputPage2(object):
         if self.umap_plot:
             self.umap_plot.remove()
             
-        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = 1.1, marker = ",", cmap = "inferno")
-        self.canvas.draw()
-        self.canvas.print_figure("UMAP_plot.png")
+        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = 2, cmap = "inferno")
+        self.umap_canvas.draw()
 
     def setupUi(self):
 
         self.MainWindow.setObjectName("MainWindow")
         self.MainWindow.resize(self.width, self.height)
 
+        self.main_layout = QtWidgets.QGridLayout()
 
-        self.umap = QtWidgets.QFrame(self.MainWindow)
-        self.umap.setGeometry(QtCore.QRect(0, 0, self.width // 2, int(self.height // 1.5)))
-        self.umap.setObjectName("umapFrame")
+        self.plots = QtWidgets.QHBoxLayout()
 
-        self.umap_box = QtWidgets.QVBoxLayout()
-        self.canvas = FigureCanvasQTAgg(plt.Figure())
-        self.umap_box.addWidget(self.canvas)
-
-        self.umap.setLayout(self.umap_box)
-
+        self.umap_canvas = FigureCanvasQTAgg(plt.Figure())
         self.draw_umap()
 
+        self.heatmap_canvas = FigureCanvasQTAgg(plt.Figure())
+        # self.draw_heatmap()
 
-        self.heatMap = QtWidgets.QFrame(self.MainWindow)
-        self.heatMap.setGeometry(QtCore.QRect(350, 30, 281, 231))
-        self.heatMap.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.heatMap.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.heatMap.setObjectName("heatMapFrame")
+        self.plots.addWidget(self.umap_canvas)
+        self.plots.addWidget(self.heatmap_canvas)
 
+        self.main_layout.addLayout(self.plots, 0, 0, 1, 3)
 
-        self.groupBox = QtWidgets.QGroupBox(self.MainWindow)
-        # self.groupBox.setGeometry(QtCore.QRect(390, 320, 261, 131))
-        self.groupBox.setGeometry(QtCore.QRect(390, 320, 261, 136))
-        self.groupBox.setObjectName("groupBox")
+        # frame to hold the output options
+        self.output_options_frame = QtWidgets.QFrame()
 
-        self.pushButton = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton.setGeometry(QtCore.QRect(140, 100, 113, 32))
-        self.pushButton.setObjectName("pushButton")
+        self.output_options = QtWidgets.QGridLayout()
 
-        self.checkBox_4 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_4.setGeometry(QtCore.QRect(130, 70, 131, 21))
-        self.checkBox_4.setObjectName("checkBox_4")
+        self.dropdown_label = QtWidgets.QLabel("UMAP coloration")
+        self.dropdown_label.setFont(QtGui.QFont("Times", 11))
 
-        self.checkBox_3 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_3.setGeometry(QtCore.QRect(10, 70, 141, 21))
-        self.checkBox_3.setObjectName("checkBox_3")
-
-        self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox_2.setGeometry(QtCore.QRect(130, 40, 87, 20))
-        self.checkBox_2.setObjectName("checkBox_2")
-        
-        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
-        self.checkBox.setGeometry(QtCore.QRect(10, 40, 111, 21))
-        self.checkBox.setObjectName("checkBox")
-
-
-        # rerun button
-        self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
-        self.reRunButton.setGeometry(QtCore.QRect(280, 420, 100, 32))
-        self.reRunButton.setObjectName("reRunButton")
-        
-
-
-        # gene gene button
-        self.geneGeneButton = QtWidgets.QPushButton(self.MainWindow)
-        self.geneGeneButton.setGeometry(QtCore.QRect(20, 420, 113, 32))
-        self.geneGeneButton.setObjectName("geneGeneButton")
-        # self.geneGeneButton.clicked.connect(self.genePopUp(self))
-
-        # self.geneGenePopUp = QtWidgets.QMessageBox(self.wid)
-
-        # def genePopUp(self):
-            # geneGenePopUp.show()
-        #self.geneGeneButton.adjustSize()
-        
-
-
-        # self.scrollArea = QtWidgets.QScrollArea(MainWindow)
-        # self.scrollArea.setGeometry(QtCore.QRect(40, 330, 241, 91))
-        # self.scrollArea.setWidgetResizable(True)
-        # self.scrollArea.setObjectName("scrollArea")
+        self.output_options.addWidget(self.dropdown_label, 0, 0)
 
         self.dropdown = QtWidgets.QComboBox(self.MainWindow)
-        # self.dropdown.setGeometry(QtCore.QRect(30, 300, 239, 89))
-        self.dropdown.setGeometry(QtCore.QRect(37, 330, 239, 29))
 
+        # for example 
+        dict = {'sonia': {'brown': 'tan', 'braids': 'tired'}, 'elijah': {'black': 'blue', 'blonde': 'yawn'}, 'lucas': {'nike': 'finland', 'curly': 'sniffle'}, 'raffa': {'skate': 'fast', 'locs': 'long'}, 'amani': {'sleep': 'happy', 'work': 'sad'}}
+        
         def pathwayNames(d):
             names = []
             for pathway in d.values():
                 names.extend([*pathway])
             return names
-        
-        # for example 
-        dict = {'sonia': {'brown': 'tan', 'braids': 'tired'}, 'elijah': {'black': 'blue', 'blonde': 'yawn'}, 'lucas': {'nike': 'finland', 'curly': 'sniffle'}, 'raffa': {'skate': 'fast', 'locs': 'long'}, 'amani': {'sleep': 'happy', 'work': 'sad'}}
-        
 
         self.dropdown.addItems(pathwayNames(dict))
-        self.dropdown.setObjectName("pathwayDropdown")
-        # self.dropdown.setWidget(self.scrollAreaWidgetContents)
+
+        self.output_options.addWidget(self.dropdown, 1, 0, 1, 2)
+
+        self.recolor_button = QtWidgets.QPushButton(self.MainWindow)
+        self.recolor_button.setText("Recolor UMAP")
+        self.recolor_button.pressed.connect(self.test_umap)
+
+        self.output_options.addWidget(self.recolor_button, 3, 0)
+    
+        self.geneGeneButton = QtWidgets.QPushButton(self.MainWindow)
+        self.geneGeneButton.setText("Gene-Gene Graph")
+        # self.geneGeneButton.clicked.connect(self.genePopUp(self))
+
+        self.output_options.addWidget(self.geneGeneButton, 3, 1)
+
+        self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
+        self.reRunButton.setText("Run again")
+
+        self.output_options.addWidget(self.reRunButton, 3, 2)
+
+        self.output_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
+        self.output_options.setRowMinimumHeight(0, int( self.height * 1 / 3 / 3))
+        self.output_options.setRowMinimumHeight(2, int( self.height * 1 / 3 / 5))
+
+        self.output_options_frame.setLayout(self.output_options)
+
+        self.main_layout.addWidget(self.output_options_frame, 1, 0)
 
 
-        # self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 239, 89))
-        # self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        # self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        # self.label = QtWidgets.QLabel(self.MainWindow)
-        # self.label.setGeometry(QtCore.QRect(140, 270, 41, 16))
-        # self.label.setObjectName("label")
+        self.save_options_frame = QtWidgets.QFrame()
+        # self.save_options_frame.setFrameStyle(QtWidgets.QFrame.StyledPanel)
+        # self.save_options_frame.setLineWidth(2)
+
+        self.save_options = QtWidgets.QGridLayout()
+
+        save_options_label = QtWidgets.QLabel("Save options")
+        save_options_label.setFont(QtGui.QFont("Times", 11))
+
+        self.save_options.addWidget(save_options_label, 0, 0, 1, 2)
+
+        self.checkBox_adata = QtWidgets.QCheckBox()
+        self.checkBox_adata.setText("Updated AnnData")
+
+        self.save_options.addWidget(self.checkBox_adata, 1, 0)
+
+        self.checkBox_model = QtWidgets.QCheckBox()
+        self.checkBox_model.setText("SPECTRA model")
+
+        self.save_options.addWidget(self.checkBox_model, 1, 2)
+
+        self.checkBox_umap = QtWidgets.QCheckBox()
+        self.checkBox_umap.setText("UMAP figure")
+
+        self.save_options.addWidget(self.checkBox_umap, 2, 0)
+
+        self.checkBox_heatmap = QtWidgets.QCheckBox()
+        self.checkBox_heatmap.setText("Heatmap figure")
+        
+        self.save_options.addWidget(self.checkBox_heatmap, 2, 2)
+
+        self.save_button = QtWidgets.QPushButton()
+        self.save_button.setText("Save")
+
+        self.save_options.addWidget(self.save_button, 3, 2)
+
+        # self.save_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 5))
+
+        self.save_options_frame.setLayout(self.save_options)
+
+        self.main_layout.addWidget(self.save_options_frame, 1, 2)
 
 
-        self.label_2 = QtWidgets.QLabel(self.MainWindow)
-        self.label_2.setGeometry(QtCore.QRect(460, 270, 100, 16))
-        self.label_2.setObjectName("label_2")
+        self.main_layout.setRowMinimumHeight(0, int(self.height * 2 / 3))
+        self.main_layout.setColumnMinimumWidth(0, int( self.width * 3 / 7))
+        self.main_layout.setColumnMinimumWidth(1, int(self.width / 8))
 
 
-        self.label_3 = QtWidgets.QLabel(self.MainWindow)
-        self.label_3.setGeometry(QtCore.QRect(40, 310, 121, 16))
-        self.label_3.setObjectName("label_3")
-
-
-        self.pushButton_2 = QtWidgets.QPushButton(self.MainWindow)
-        self.pushButton_2.setGeometry(QtCore.QRect(142, 420, 131, 32))
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.pushButton_2.pressed.connect(self.test_umap)
-
-
-        self.groupBox.raise_()
-        self.umap.raise_()
-        self.heatMap.raise_()
-        # self.scrollArea.raise_()
-        # self.label.raise_()
-        self.label_2.raise_()
-        self.label_3.raise_()
-        self.pushButton_2.raise_()
-        self.geneGeneButton.raise_()
-        self.reRunButton.raise_()
-        self.umap.raise_()
-
-        self.retranslateUi()
-        QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
-
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.MainWindow.setWindowTitle(_translate("MainWindow", "SPECTRA"))
-        self.groupBox.setTitle(_translate("MainWindow", "Save Options"))
-        self.pushButton.setText(_translate("MainWindow", "Save "))
-        self.checkBox_4.setText(_translate("MainWindow", "SPECTRA Model"))
-        self.checkBox_3.setText(_translate("MainWindow", "Umap"))
-        self.checkBox_2.setText(_translate("MainWindow", "Heat map"))
-        self.checkBox.setText(_translate("MainWindow", "AnnData"))
-        # self.label.setText(_translate("MainWindow", "Umap "))
-        self.label_2.setText(_translate("MainWindow", "Heat map"))
-        self.label_3.setText(_translate("MainWindow", "Umap Coloration"))
-        self.pushButton_2.setText(_translate("MainWindow", "Recolor Umap"))
-        self.geneGeneButton.setText(_translate("MainWindow", "Gene-gene graph"))
-        self.reRunButton.setText(_translate("MainWindow", "Run Again"))
-
+        self.MainWindow.setLayout(self.main_layout)
 
 if __name__ == "__main__":
     import sys
