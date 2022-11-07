@@ -42,9 +42,12 @@ class OutputPage2(object):
 
         # self.model = spc.est_spectra(adata = self.anndata,  gene_set_dictionary = gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
         #                             rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
-
+        self.model.save()
         self.MainWindow = QtWidgets.QWidget()
         self.setupUi()
+    
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        return super().closeEvent(a0)
 
     def test_umap(self):
         if self.curr_factor is not None:

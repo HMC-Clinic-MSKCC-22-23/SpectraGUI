@@ -55,8 +55,11 @@ class SpectraGUI:
             self.output.MainWindow.show()
 
     def run_spectra_again(self):
-        self.output.MainWindow.hide()
-        self.input.show()
+        reply = qw.QMessageBox.question(self.output.MainWindow, "Rerun", "Are you sure you want to rerun the training process? This will discard the trained model and updated Annotated Data.",
+                                        qw.QMessageBox.Yes | qw.QMessageBox.No, qw.QMessageBox.No)
+        if reply == qw.QMessageBox.Yes:
+            self.output.MainWindow.close()
+            self.input.show()
     
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
