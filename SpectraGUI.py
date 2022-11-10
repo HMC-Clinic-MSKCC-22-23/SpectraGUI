@@ -18,8 +18,8 @@ class SpectraGUI:
     def run_and_quit(self):
         if(self.input.run_button_press()):
             anndata_path = self.input.annd_box.text()
-            gene_dict = self.input.path_ann.genes_dict
             cell_type_key = self.input.ctype_box.text()
+            gene_dict = self.input.path_ann.genes_dict
 
             try:
                 lambda_val = float(self.input.lam_box.text())
@@ -65,20 +65,27 @@ class SpectraGUI:
                 newWindow.exec()
                 return
 
+            adata = sc.read_h5ad(anndata_path)
+
+            if cell_type_key not in adata.obs_keys():
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("Cell type key not found in adata.obs - try again")
+                newWindow.exec()
+                return
+
             newWindow = qw.QMessageBox(self.input.wid)
             newWindow.setText("Running in progress...")
             newWindow.exec()
 
             self.input.hide()
-
-            adata = sc.read_h5ad(anndata_path)
+            
 
             # model = spc.est_spectra(adata = adata,  gene_set_dictionary = gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
             #                         rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
 
             # self.output = op.OutputPage2(self.screen_width, self.screen_height, adata, model)
 
-            self.output = op.OutputPage2(self.screen_width, self.screen_height, adata)
+            self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, cell_type_key = cell_type_key)
             self.output.reRunButton.clicked.connect(self.run_spectra_again)
             self.output.MainWindow.show()
   
