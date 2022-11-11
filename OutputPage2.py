@@ -13,13 +13,13 @@ import seaborn as sb
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-matplotlib.use("Qt5Agg")
+# matplotlib.use("Qt5Agg")
 from spectra import spectra as spc
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
-sb.set(font_scale = 0.8)
+sb.set(font_scale = 0.75)
 
 class OutputPage2(object):
 
@@ -49,10 +49,12 @@ class OutputPage2(object):
             df["cell_type"] = self.anndata.obs[self.cell_type_key].values
             df = df.groupby("cell_type").mean()
 
-            g = sb.clustermap(df, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0.15), cbar_pos = (1.05,.3,.03,.4), standard_scale = 0, linewidth = 0)
+            g = sb.clustermap(df, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, standard_scale = 0, linewidth = 0)
 
             g.ax_heatmap.set_xlabel("Factors")
             g.ax_heatmap.set_ylabel("Cell type")
+
+            g.figure.colorbar(g.ax_heatmap.collections[0], ax = g.ax_heatmap, location = 'top', fraction = 0.05, pad = 0.05)
 
 
             fig = g.figure
@@ -71,7 +73,7 @@ class OutputPage2(object):
 
     def draw_umap(self):
 
-        self.point_size = ((self.width * self.height) - 1000000) / 100000
+        self.point_size = ((self.width * self.height) - 800000) / 100000
 
         self.ax = self.umap_canvas.figure.subplots()
         self.ax.grid(False)
@@ -216,14 +218,13 @@ class OutputPage2(object):
 
             if self.checkBox_model.isChecked() == True:
                 print("model save")
-                # self.umap_canvas.print_figure()
+                # self.model.save("SPECTRA_model")
 
             if self.checkBox_umap.isChecked() == True:
                 self.umap_canvas.print_figure("UMAP_figure.png")
 
             if self.checkBox_heatmap.isChecked() == True:
-                print("heatmap save")
-                # self.umap_canvas.print_figure("Heatmap_figure.png")
+                self.heatmap_canvas.print_figure("Heatmap_figure.png")
 
 
 

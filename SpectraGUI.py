@@ -1,4 +1,4 @@
- # import our libraries
+# import our libraries
 import sys
 import PyQt5.QtWidgets as qw
 import InputPage as ip
