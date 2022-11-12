@@ -35,7 +35,8 @@ class OutputPage2(object):
         self.anndata = anndata
 
         self.cell_type_key = cell_type_key
-
+        self.model = model
+    
         self.MainWindow = QtWidgets.QWidget()
         self.setupUi()
     
@@ -99,6 +100,19 @@ class OutputPage2(object):
         self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, format = "%4.2e")
         self.umap_canvas.draw()
 
+    def genePopUp(self):
+        if self.model == None:
+
+            newWindow = QtWidgets.QMessageBox(self.MainWindow)
+            newWindow.setText("No Model  loaded")
+            newWindow.exec()
+        
+        else:
+            newWindow = QtWidgets.QMessageBox(self.MainWindow)
+            newWindow.setText("Model exists - now you gotta show it")
+            newWindow.exec()
+
+
     def setupUi(self):
 
         self.MainWindow.setObjectName("MainWindow")
@@ -158,7 +172,7 @@ class OutputPage2(object):
     
         self.geneGeneButton = QtWidgets.QPushButton(self.MainWindow)
         self.geneGeneButton.setText("Gene-Gene Graph")
-        # self.geneGeneButton.clicked.connect(self.genePopUp(self))
+        self.geneGeneButton.clicked.connect(self.genePopUp)
 
         self.output_options.addWidget(self.geneGeneButton, 3, 1)
 
@@ -248,6 +262,10 @@ class OutputPage2(object):
 
 
         self.MainWindow.setLayout(self.main_layout)
+
+        
+
+
 
 if __name__ == "__main__":
     import sys
