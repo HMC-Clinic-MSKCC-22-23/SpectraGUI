@@ -113,6 +113,7 @@ class OutputPage2(object):
 
         self.plots = QtWidgets.QHBoxLayout()
 
+
         self.umap_canvas = FigureCanvasQTAgg(plt.Figure())
         self.draw_umap()
 
@@ -154,6 +155,37 @@ class OutputPage2(object):
         self.dropdown.addItems(colorByFactor())
 
         self.output_options.addWidget(self.dropdown, 1, 0, 1, 2)
+
+
+       
+
+
+        self.vmin_max = QtWidgets.QHBoxLayout()
+
+        self.vmin_label = QtWidgets.QLabel("v-min:")
+        self.vmin_label.setFont(QtGui.QFont("Times", 11))
+
+        self.vmin_box = QtWidgets.QLineEdit()
+        self.vmin_box.setText("0")
+        self.vmin_box.setFont(QtGui.QFont("Times", 11))
+
+        self.vmin_max.addWidget(self.vmin_label)
+        self.vmin_max.addWidget(self.vmin_box)
+
+        self.vmax_label = QtWidgets.QLabel("v-max:")
+        self.vmax_label.setFont(QtGui.QFont("Times", 11))
+
+        self.vmax_box = QtWidgets.QLineEdit()
+        self.vmax_box.setText("100")
+        self.vmax_box.setFont(QtGui.QFont("Times", 11))
+
+        self.vmin_max.addWidget(self.vmax_label)
+        self.vmin_max.addWidget(self.vmax_box)
+
+
+        self.output_options.addLayout(self.vmin_max, 2, 0)
+
+
 
         self.recolor_button = QtWidgets.QPushButton(self.MainWindow)
         self.recolor_button.setText("Recolor UMAP")
