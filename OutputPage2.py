@@ -168,6 +168,7 @@ class OutputPage2(object):
         self.vmin_box = QtWidgets.QLineEdit()
         self.vmin_box.setText("0")
         self.vmin_box.setFont(QtGui.QFont("Times", 11))
+        # self.vmin_box.setFixedWidth(100)
 
         self.vmin_max.addWidget(self.vmin_label)
         self.vmin_max.addWidget(self.vmin_box)
@@ -178,12 +179,14 @@ class OutputPage2(object):
         self.vmax_box = QtWidgets.QLineEdit()
         self.vmax_box.setText("100")
         self.vmax_box.setFont(QtGui.QFont("Times", 11))
+        # self.vmax_box.setFixedWidth(100)
 
         self.vmin_max.addWidget(self.vmax_label)
         self.vmin_max.addWidget(self.vmax_box)
 
-
+        
         self.output_options.addLayout(self.vmin_max, 2, 0)
+        self.vmin_max.setSpacing(20)
 
 
 
