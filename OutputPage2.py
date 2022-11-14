@@ -112,7 +112,7 @@ class OutputPage2(object):
         self.umap_canvas.draw()
 
     def genePopUp(self):
-        if self.model == None:
+        if not self.model:
 
             newWindow = QtWidgets.QMessageBox(self.MainWindow)
             newWindow.setText("No Model  loaded")
