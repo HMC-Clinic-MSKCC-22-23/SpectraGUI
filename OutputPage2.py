@@ -86,8 +86,23 @@ class OutputPage2(object):
         self.ax.set_xticks([])
         self.ax.set_yticks([])
         self.ax.set_title("UMAP")
+
+        vmin = min(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
+        vmax = max(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
+        vdomain = vmax - vmin
+
+        try:
+            vmax = vmin + (vdomain * (float(self.vmax_box.text()) / 100))
+        except:
+            vmax = vmin + vdomain
+
+        try:
+            vmin += vdomain * (float(self.vmin_box.text()) / 100) 
+        except:
+            vmin += 0
             
-        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, alpha = 0.9, cmap = "inferno")
+            
+        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, alpha = 0.9, cmap = "inferno")
         self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, format = "%4.2e")
         self.umap_canvas.draw()
 
