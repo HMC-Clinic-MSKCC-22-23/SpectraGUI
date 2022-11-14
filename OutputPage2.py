@@ -164,31 +164,31 @@ class OutputPage2(object):
 
         self.vmin_label = QtWidgets.QLabel("v-min:")
         self.vmin_label.setFont(QtGui.QFont("Times", 11))
+        self.vmin_label.setMaximumWidth(self.width // 35)
 
         self.vmin_box = QtWidgets.QLineEdit()
         self.vmin_box.setText("0")
         self.vmin_box.setFont(QtGui.QFont("Times", 11))
-        # self.vmin_box.setFixedWidth(100)
+        self.vmin_box.setMaximumWidth(self.width // 40)
 
         self.vmin_max.addWidget(self.vmin_label)
         self.vmin_max.addWidget(self.vmin_box)
 
         self.vmax_label = QtWidgets.QLabel("v-max:")
         self.vmax_label.setFont(QtGui.QFont("Times", 11))
+        self.vmax_label.setMaximumWidth(self.width // 35)
 
         self.vmax_box = QtWidgets.QLineEdit()
         self.vmax_box.setText("100")
         self.vmax_box.setFont(QtGui.QFont("Times", 11))
-        # self.vmax_box.setFixedWidth(100)
+        self.vmax_box.setMaximumWidth(self.width // 40)
 
         self.vmin_max.addWidget(self.vmax_label)
         self.vmin_max.addWidget(self.vmax_box)
 
+        self.vmin_max.setSpacing(20)
         
         self.output_options.addLayout(self.vmin_max, 2, 0)
-        self.vmin_max.setSpacing(20)
-
-
 
         self.recolor_button = QtWidgets.QPushButton(self.MainWindow)
         self.recolor_button.setText("Recolor UMAP")
@@ -212,6 +212,7 @@ class OutputPage2(object):
         self.output_options.setRowMinimumHeight(2, int( self.height * 1 / 3 / 5))
 
         self.output_options_frame.setLayout(self.output_options)
+        self.output_options_frame.setMaximumWidth(int(self.width / 2.5))
 
         self.main_layout.addWidget(self.output_options_frame, 1, 0)
 
@@ -265,9 +266,6 @@ class OutputPage2(object):
             if self.checkBox_heatmap.isChecked() == True:
                 self.heatmap_canvas.print_figure("Heatmap_figure.png")
 
-
-
-
         self.save_button = QtWidgets.QPushButton()
         self.save_button.setText("Save")
         self.save_button.clicked.connect(saveData)
@@ -282,8 +280,10 @@ class OutputPage2(object):
 
 
         self.main_layout.setRowMinimumHeight(0, int(self.height * 2 / 3))
-        self.main_layout.setColumnMinimumWidth(0, int( self.width * 3 / 7))
-        self.main_layout.setColumnMinimumWidth(1, int(self.width / 8))
+
+        self.main_layout.setColumnMinimumWidth(0, self.width // 100)
+        self.main_layout.setColumnStretch(0, 0)
+        self.main_layout.setColumnMinimumWidth(1, int(self.width / 3))
 
 
         self.MainWindow.setLayout(self.main_layout)
