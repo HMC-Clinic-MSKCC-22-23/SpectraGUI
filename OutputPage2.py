@@ -7,6 +7,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # matplotlib.use("Qt5Agg")
 from spectra import spectra as spc
 
+from html2image import Html2Image
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
@@ -14,16 +16,19 @@ sb.set(font_scale = 0.75)
 
 class OutputPage2(object):
 
-    def __init__(self, screen_width, screen_height, anndata = None, model = None, cell_type_key = None):
+    def __init__(self, screen_width, screen_height, anndata = None, model = None, gene_sets = None, cell_type_key = None):
         sc.set_figure_params(facecolor="F0F0F0")
 
         self.width = int(screen_width // 1.2)
         self.height = int(screen_height // 1.5)
         
+        self.gene_sets = gene_sets
 
         self.curr_factor = None
 
         self.anndata = anndata
+
+        self.photo_window = None
 
         self.cell_type_key = cell_type_key
         self.model = model
@@ -114,10 +119,20 @@ class OutputPage2(object):
             newWindow.exec()
         
         else:
-            newWindow = QtWidgets.QMessageBox(self.MainWindow)
-            newWindow.setText("Model exists - now you gotta show it")
-            newWindow.exec()
+            big_graph = self.model.return_graph()
 
+            # this works on kate's computer, with the local try/except for graph_network
+            # needs more work
+            # genes_set = self.anndata.var_names[self.anndata.var["spectra_vocab"]][0]
+            # genes_set = []
+            # out = spc.graph_network(self.anndata, big_graph, genes_set)
+            # out.show("ggGraph.html")
+            
+            # hti = Html2Image()
+            # hti.screenshot(html_file='ggGraph.html', save_as='ggGraph.png')
+            
+            self.photo_window = ggg_window()
+            self.photo_window.show()
 
     def setupUi(self):
 
@@ -179,31 +194,31 @@ class OutputPage2(object):
 
         self.vmin_label = QtWidgets.QLabel("v-min:")
         self.vmin_label.setFont(QtGui.QFont("Times", 11))
+        self.vmin_label.setMaximumWidth(self.width // 35)
 
         self.vmin_box = QtWidgets.QLineEdit()
         self.vmin_box.setText("0")
         self.vmin_box.setFont(QtGui.QFont("Times", 11))
-        # self.vmin_box.setFixedWidth(100)
+        self.vmin_box.setMaximumWidth(self.width // 40)
 
         self.vmin_max.addWidget(self.vmin_label)
         self.vmin_max.addWidget(self.vmin_box)
 
         self.vmax_label = QtWidgets.QLabel("v-max:")
         self.vmax_label.setFont(QtGui.QFont("Times", 11))
+        self.vmax_label.setMaximumWidth(self.width // 35)
 
         self.vmax_box = QtWidgets.QLineEdit()
         self.vmax_box.setText("100")
         self.vmax_box.setFont(QtGui.QFont("Times", 11))
-        # self.vmax_box.setFixedWidth(100)
+        self.vmax_box.setMaximumWidth(self.width // 40)
 
         self.vmin_max.addWidget(self.vmax_label)
         self.vmin_max.addWidget(self.vmax_box)
 
+        self.vmin_max.setSpacing(20)
         
         self.output_options.addLayout(self.vmin_max, 2, 0)
-        self.vmin_max.setSpacing(20)
-
-
 
         self.recolor_button = QtWidgets.QPushButton(self.MainWindow)
         self.recolor_button.setText("Recolor UMAP")
@@ -227,6 +242,7 @@ class OutputPage2(object):
         self.output_options.setRowMinimumHeight(2, int( self.height * 1 / 3 / 5))
 
         self.output_options_frame.setLayout(self.output_options)
+        self.output_options_frame.setMaximumWidth(int(self.width / 2.5))
 
         self.main_layout.addWidget(self.output_options_frame, 1, 0)
 
@@ -280,9 +296,6 @@ class OutputPage2(object):
             if self.checkBox_heatmap.isChecked() == True:
                 self.heatmap_canvas.print_figure("Heatmap_figure.png")
 
-
-
-
         self.save_button = QtWidgets.QPushButton()
         self.save_button.setText("Save")
         self.save_button.clicked.connect(saveData)
@@ -297,13 +310,44 @@ class OutputPage2(object):
 
 
         self.main_layout.setRowMinimumHeight(0, int(self.height * 2 / 3))
-        self.main_layout.setColumnMinimumWidth(0, int( self.width * 3 / 7))
-        self.main_layout.setColumnMinimumWidth(1, int(self.width / 8))
+
+        self.main_layout.setColumnMinimumWidth(0, self.width // 100)
+        self.main_layout.setColumnStretch(0, 0)
+        self.main_layout.setColumnMinimumWidth(1, int(self.width / 3))
 
 
         self.MainWindow.setLayout(self.main_layout)
 
+
+class ggg_window(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.title = "Gene-Gene Graph"
+        self.left = 100
+        self.top = 100
+        self.width = 400
+        self.height = 400
+        self.newgggWindow()
+
+    def newgggWindow(self):
+        # make the window
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        # make central widget
+        self.wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(self.wid)
+
         
+        photo = QtWidgets.QLabel(self.wid)
+        photo.setText("")
+        try:
+            photo.setPixmap(QtGui.QPixmap("ggGraph.png"))
+        except:
+            photo.setText("Image not Found")
+        photo.setScaledContents(True)
+        photo.setObjectName("photo")
+
 
 
 

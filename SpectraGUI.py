@@ -85,7 +85,7 @@ class SpectraGUI:
 
             # self.output = op.OutputPage2(self.screen_width, self.screen_height, adata, model)
 
-            self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, cell_type_key = cell_type_key)
+            self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, model = model, cell_type_key = cell_type_key)
             self.output.reRunButton.clicked.connect(self.run_spectra_again)
             self.output.MainWindow.show()
   
