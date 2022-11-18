@@ -5,11 +5,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # matplotlib.use("Qt5Agg")
+import sys
 from spectra import spectra as spc
 
 from html2image import Html2Image
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 sb.set(font_scale = 0.75)
@@ -121,17 +122,15 @@ class OutputPage2(object):
         else:
             big_graph = self.model.return_graph()
 
-            # this works on kate's computer, with the local try/except for graph_network
-            # needs more work
-            # genes_set = self.anndata.var_names[self.anndata.var["spectra_vocab"]][0]
-            # genes_set = []
-            # out = spc.graph_network(self.anndata, big_graph, genes_set)
-            # out.show("ggGraph.html")
-            
-            # hti = Html2Image()
-            # hti.screenshot(html_file='ggGraph.html', save_as='ggGraph.png')
-            
-            self.photo_window = ggg_window()
+            genes_set = []
+            for i in range(0,len(self.anndata.uns["SPECTRA_markers"][self.curr_factor])):
+                genes_set.append(str(self.anndata.uns["SPECTRA_markers"][self.curr_factor][i]))
+            out = spc.graph_network(self.anndata, big_graph, genes_set)
+            out.show("ggGraph.html")
+
+            self.photo_window = QtWidgets.QDialog()
+            gg = ggg_window()
+            gg.openWindow(self.photo_window)
             self.photo_window.show()
 
     def setupUi(self):
@@ -319,36 +318,31 @@ class OutputPage2(object):
         self.MainWindow.setLayout(self.main_layout)
 
 
-class ggg_window(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.title = "Gene-Gene Graph"
-        self.left = 100
-        self.top = 100
-        self.width = 400
-        self.height = 400
-        self.newgggWindow()
-
-    def newgggWindow(self):
-        # make the window
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        # make central widget
-        self.wid = QtWidgets.QWidget(self)
-        self.setCentralWidget(self.wid)
-
-        
-        photo = QtWidgets.QLabel(self.wid)
-        photo.setText("")
-        try:
-            photo.setPixmap(QtGui.QPixmap("ggGraph.png"))
-        except:
-            photo.setText("Image not Found")
-        photo.setScaledContents(True)
-        photo.setObjectName("photo")
+       
 
 
+class ggg_window(object):
+    def openWindow(self, Dialog):
+        Dialog.setObjectName("Gene-Gene Graph")
+        Dialog.resize(500, 500)
+
+        self.layout = QtWidgets.QVBoxLayout(Dialog)
+        self.layout.setObjectName("layout")
+
+        self.wid = QtWidgets.QWidget(Dialog)
+        self.wid.setObjectName("widget")
+
+        self.webEngineView = QtWebEngineWidgets.QWebEngineView(self.wid)
+        self.webEngineView.load(QtCore.QUrl().fromLocalFile(os.path.abspath("ggGraph.html")))
+
+        self.layout.addWidget(self.webEngineView)
+
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+    
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Gene-Gene Graph", "Gene-Gene Graph"))
 
 
 if __name__ == "__main__":
