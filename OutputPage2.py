@@ -40,17 +40,17 @@ class OutputPage2(object):
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         return super().closeEvent(a0)
 
-    def draw_heatmap(self):
+    def draw_heatmap(self, y_axis):
 
         if self.anndata:
             df = pd.DataFrame(self.anndata.obsm["SPECTRA_cell_scores"])
-            df["cell_type"] = self.anndata.obs[self.cell_type_key].values
-            df = df.groupby("cell_type").mean()
+            df["y_axis"] = self.anndata.obs[y_axis].values
+            df = df.groupby("y_axis").mean()
 
-            g = sb.clustermap(df, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, standard_scale = 0, linewidth = 0)
+            g = sb.clustermap(df, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, cmap = "viridis", standard_scale = 0, linewidth = 0)
 
             g.ax_heatmap.set_xlabel("Factors")
-            g.ax_heatmap.set_ylabel("Cell type")
+            g.ax_heatmap.set_ylabel(y_axis)
 
             g.figure.colorbar(g.ax_heatmap.collections[0], ax = g.ax_heatmap, location = 'top', fraction = 0.05, pad = 0.05)
 
@@ -61,6 +61,12 @@ class OutputPage2(object):
 
         else:
             return plt.Figure()
+
+    def redraw_heatmap(self):
+        new_data = self.heatmap_dropdown.currentText()
+        self.plots.removeWidget(self.heatmap_canvas)
+        self.heatmap_canvas = FigureCanvasQTAgg(self.draw_heatmap(new_data))
+        self.plots.addWidget(self.heatmap_canvas)
 
     def recolor_umap(self):
         
@@ -77,7 +83,7 @@ class OutputPage2(object):
         self.ax.grid(False)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
-        self.ax.set_title("UMAP")
+        self.ax.set_title("")
         # if we have loaded anndata, draw colorless umap
         if self.anndata:
             self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = self.point_size)
@@ -108,7 +114,7 @@ class OutputPage2(object):
             vmin += 0
             
             
-        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, alpha = 0.9, cmap = "inferno")
+        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, alpha = 0.9, cmap = "viridis")
         self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, format = "%4.2e")
         self.umap_canvas.draw()
 
@@ -147,7 +153,7 @@ class OutputPage2(object):
         self.umap_canvas = FigureCanvasQTAgg(plt.Figure())
         self.draw_umap()
 
-        self.heatmap_canvas = FigureCanvasQTAgg(self.draw_heatmap())
+        self.heatmap_canvas = FigureCanvasQTAgg(self.draw_heatmap(self.cell_type_key))
 
         self.plots.addWidget(self.umap_canvas)
         self.plots.addWidget(self.heatmap_canvas)
@@ -187,14 +193,11 @@ class OutputPage2(object):
         self.output_options.addWidget(self.dropdown, 1, 0, 1, 2)
 
 
-       
-
-
         self.vmin_max = QtWidgets.QHBoxLayout()
 
         self.vmin_label = QtWidgets.QLabel("v-min:")
         self.vmin_label.setFont(QtGui.QFont("Times", 11))
-        self.vmin_label.setMaximumWidth(self.width // 35)
+        self.vmin_label.setMaximumWidth(self.width // 30)
 
         self.vmin_box = QtWidgets.QLineEdit()
         self.vmin_box.setText("0")
@@ -206,7 +209,7 @@ class OutputPage2(object):
 
         self.vmax_label = QtWidgets.QLabel("v-max:")
         self.vmax_label.setFont(QtGui.QFont("Times", 11))
-        self.vmax_label.setMaximumWidth(self.width // 35)
+        self.vmax_label.setMaximumWidth(self.width // 30)
 
         self.vmax_box = QtWidgets.QLineEdit()
         self.vmax_box.setText("100")
@@ -238,13 +241,53 @@ class OutputPage2(object):
         self.output_options.addWidget(self.reRunButton, 3, 2)
 
         self.output_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
-        self.output_options.setRowMinimumHeight(0, int( self.height * 1 / 3 / 3))
-        self.output_options.setRowMinimumHeight(2, int( self.height * 1 / 3 / 5))
+        # self.output_options.setRowMinimumHeight(0, int( self.height / 9))
+        # self.output_options.setRowMinimumHeight(2, int( self.height / 15))
 
         self.output_options_frame.setLayout(self.output_options)
-        self.output_options_frame.setMaximumWidth(int(self.width / 2.5))
+        self.output_options_frame.setMaximumWidth(int(self.width / 2.2))
 
         self.main_layout.addWidget(self.output_options_frame, 1, 0)
+
+
+        self.heatmap_options_frame = QtWidgets.QFrame()
+
+        self.heatmap_options = QtWidgets.QGridLayout()
+
+        heatmap_options_label = QtWidgets.QLabel("Heatmap Y-axis")
+        heatmap_options_label.setFont(QtGui.QFont("Times", 11))
+
+        self.heatmap_options.addWidget(heatmap_options_label, 0, 0)
+
+        self.heatmap_dropdown = QtWidgets.QComboBox(self.MainWindow)
+
+
+        def getObsNames():
+            if self.anndata:
+                obs_list = list(self.anndata.obs.select_dtypes("category").columns.values)
+                obs_list.remove(self.cell_type_key)
+                obs_list.insert(0, self.cell_type_key)
+
+                return obs_list
+
+            else:
+                return ["obs1", "obs2", "obs3"]
+
+
+
+        self.heatmap_dropdown.addItems(getObsNames())
+
+        self.heatmap_dropdown.currentTextChanged.connect(self.redraw_heatmap)
+
+        self.heatmap_options.addWidget(self.heatmap_dropdown, 1, 0, 1, 2)
+
+        self.heatmap_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
+        self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
+        self.heatmap_options.setRowMinimumHeight(2, int( self.height / 15))
+
+        self.heatmap_options_frame.setLayout(self.heatmap_options)
+
+        self.main_layout.addWidget(self.heatmap_options_frame, 1, 1)
 
 
         self.save_options_frame = QtWidgets.QFrame()
@@ -309,7 +352,7 @@ class OutputPage2(object):
         self.main_layout.addWidget(self.save_options_frame, 1, 2)
 
 
-        self.main_layout.setRowMinimumHeight(0, int(self.height * 2 / 3))
+        self.main_layout.setRowMinimumHeight(0, int(self.height * 2.2 / 3))
 
         self.main_layout.setColumnMinimumWidth(0, self.width // 100)
         self.main_layout.setColumnStretch(0, 0)
