@@ -136,6 +136,7 @@ class OutputPage2(object):
     def setupUi(self):
 
         self.MainWindow.setObjectName("MainWindow")
+        self.MainWindow.setWindowTitle(self.title)
         self.MainWindow.resize(self.width, self.height)
 
         self.main_layout = QtWidgets.QGridLayout()
