@@ -170,6 +170,8 @@ class PathwayAnnotations(qw.QMainWindow):
                         reader = csv.reader(f, delimiter=',')
                         for row in reader:
                             items = [field for field in row]
+                                if items[0] == "Cell_Type":
+                                    continue
                         # self.genes.appendRow(items)
 
                             i = 2
@@ -187,6 +189,8 @@ class PathwayAnnotations(qw.QMainWindow):
                         reader = csv.reader(f, delimiter='\t')
                         for row in reader:
                             items = [field for field in row]
+                                if items[0] == "Cell_Type":
+                                    continue
                         # self.genes.appendRow(items)
 
                             i = 2
