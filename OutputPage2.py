@@ -5,10 +5,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # matplotlib.use("Qt5Agg")
-import sys
+import os
 from spectra import spectra as spc
 
-from html2image import Html2Image
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 from matplotlib import rcParams
@@ -19,6 +18,7 @@ class OutputPage2(object):
 
     def __init__(self, screen_width, screen_height, anndata = None, model = None, gene_sets = None, cell_type_key = None):
         sc.set_figure_params(facecolor="F0F0F0")
+        self.title = "SPECTRA Output"
 
         self.width = int(screen_width // 1.2)
         self.height = int(screen_height // 1.5)
@@ -123,8 +123,8 @@ class OutputPage2(object):
             big_graph = self.model.return_graph()
 
             genes_set = []
-            for i in range(0,len(self.anndata.uns["SPECTRA_markers"][self.curr_factor])):
-                genes_set.append(str(self.anndata.uns["SPECTRA_markers"][self.curr_factor][i]))
+            for i in self.anndata.uns["SPECTRA_markers"][self.curr_factor]:
+                genes_set.append(str(i))
             out = spc.graph_network(self.anndata, big_graph, genes_set)
             out.show("ggGraph.html")
 
