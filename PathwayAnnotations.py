@@ -47,31 +47,31 @@ class PathwayAnnotations(qw.QMainWindow):
         title = qw.QLabel("Pathway Annotations")
         title.setFont(qg.QFont("Times", 15, 2))
 
-        # gene-set annotations section
-        gene_set_box = qw.QWidget()
-        gene_set_layout = qw.QGridLayout()
+        # cell_type annotations section
+        cell_type_box = qw.QWidget()
+        cell_type_layout = qw.QGridLayout()
 
-        gene_set_label = qw.QLabel("Cell-Type Annotations")
-        gene_set_label.setFont(qg.QFont("Times", 12, 2))
+        cell_type_label = qw.QLabel("Cell-Type Annotations")
+        cell_type_label.setFont(qg.QFont("Times", 12, 2))
 
-        self.gene_set_table = qw.QTableWidget()
-        self.gene_set_table.setColumnCount(2)
-        self.gene_set_table.setHorizontalHeaderLabels(["Cell-Types", "Pathway Names"])
-        header = self.gene_set_table.horizontalHeader()
+        self.cell_type_table = qw.QTableWidget()
+        self.cell_type_table.setColumnCount(2)
+        self.cell_type_table.setHorizontalHeaderLabels(["Cell-Types", "Pathway Names"])
+        header = self.cell_type_table.horizontalHeader()
         header.setSectionResizeMode(0, qw.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, qw.QHeaderView.Stretch)
 
-        delete_gene_set_button = qw.QPushButton("Delete")
-        delete_gene_set_button.clicked.connect(self.delete_gene_set_press)
-        delete_gene_set_button.setFont(qg.QFont("Times", 11))
+        delete_cell_type_button = qw.QPushButton("Delete")
+        delete_cell_type_button.clicked.connect(self.delete_cell_type_press)
+        delete_cell_type_button.setFont(qg.QFont("Times", 11))
 
-        edit_gene_set_button = qw.QPushButton("Edit")
-        edit_gene_set_button.clicked.connect(self.edit_gene_set_press)
-        edit_gene_set_button.setFont(qg.QFont("Times", 11))
+        edit_cell_type_button = qw.QPushButton("Edit")
+        edit_cell_type_button.clicked.connect(self.edit_cell_type_press)
+        edit_cell_type_button.setFont(qg.QFont("Times", 11))
 
-        add_gene_set_button = qw.QPushButton("Add")
-        add_gene_set_button.clicked.connect(self.add_gene_set_press)
-        add_gene_set_button.setFont(qg.QFont("Times", 11))
+        add_cell_type_button = qw.QPushButton("Add")
+        add_cell_type_button.clicked.connect(self.add_cell_type_press)
+        add_cell_type_button.setFont(qg.QFont("Times", 11))
 
         # genes section
         gene_box = qw.QWidget()
@@ -138,7 +138,7 @@ class PathwayAnnotations(qw.QMainWindow):
         gene_box_layout.addWidget(add_gene_box_button, 4, 5, 1, 1, qc.Qt.AlignBottom)
         gene_box.setLayout(gene_box_layout)
 
-        layout.addWidget(gene_set_box, 1, 0, 3, 8)
+        layout.addWidget(cell_type_box, 1, 0, 3, 8)
         layout.addWidget(gene_box, 4, 0, 3, 8)
 
         layout.addWidget(cancel_button, 8, 7, 1, 1, qc.Qt.AlignBottom)
@@ -221,7 +221,7 @@ class PathwayAnnotations(qw.QMainWindow):
             self.updateTable(current_dict, self.gene_table)
             self.updateTable(self.genes_dict, self.cell_type_table)
 
-    def delete_gene_set_press(self):
+    def delete_cell_type_press(self):
         reply = qw.QMessageBox.question(self.wid, "Delete",
                                         "Are you sure you want to delete the cell_type " + self.current_cell_type + "?",
                                         qw.QMessageBox.Yes | qw.QMessageBox.No, qw.QMessageBox.No)
@@ -248,14 +248,14 @@ class PathwayAnnotations(qw.QMainWindow):
             newWindow.setText("Error saving gene annotation - try again")
             newWindow.exec()
 
-    def edit_gene_set_press(self):
+    def edit_cell_type_press(self):
         if self.current_cell_type is not None:
             self.edit_cell_type.gs_box.setText(self.current_cell_type)
             self.edit_cell_type.pathway_box.setText(str(self.genes_dict.get(self.current_cell_type)))
         self.edit_cell_type.show()
         self.edit_cell_type.ok_button.clicked.connect(self.save_cell_type_edit)
 
-    def save_gene_set_edit(self):
+    def save_cell_type_edit(self):
         try:
             new_pathway = {self.edit_cell_type.gs_box.text(): ast.literal_eval(self.edit_cell_type.pathway_box.text())}
             self.current_cell_type = self.edit_cell_type.gs_box.text()
@@ -270,7 +270,7 @@ class PathwayAnnotations(qw.QMainWindow):
 
     def add_gene_press(self):
         self.new_gene.gene_box.setText("")
-        self.new_gene_set.pathway_box.setText("")
+        self.new_cell_type.pathway_box.setText("")
         self.new_gene.show()
         self.new_gene.ok_button.clicked.connect(self.save_new_gene)
 
@@ -288,18 +288,18 @@ class PathwayAnnotations(qw.QMainWindow):
             newWindow.setText("Error adding new gene annotation - try again")
             newWindow.exec()
 
-    def add_gene_set_press(self):
+    def add_cell_type_press(self):
         self.new_cell_type.gs_box.setText("")
         self.new_cell_type.pathway_box.setText("")
         self.new_cell_type.show()
         self.new_cell_type.ok_button.clicked.connect(self.save_new_cell_type)
 
-    def save_new_gene_set(self):
+    def save_new_cell_type(self):
         try:
             new_gs = {self.new_cell_type.gs_box.text(): ast.literal_eval(self.new_cell_type.pathway_box.text())}
             self.genes_dict = self.genes_dict | new_gs
             self.updateTable(self.genes_dict, self.cell_type_table)
-            self.new_gene_set.hide()
+            self.new_cell_type.hide()
         except:
             newWindow = qw.QMessageBox(self.wid)
             newWindow.setText("Error adding new cell type - try again")
@@ -407,7 +407,7 @@ class newCellTypeAnnotationWindow(qw.QMainWindow):
         self.height = 200
         self.newCellTypeAnnotation()
 
-    def newGeneSetAnnotation(self):
+    def newCellTypeAnnotation(self):
         # make the window
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
