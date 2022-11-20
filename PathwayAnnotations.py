@@ -122,7 +122,7 @@ class PathwayAnnotations(qw.QMainWindow):
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8, qc.Qt.AlignCenter)
 
-        # gene set annotations layout
+        # cell type annotations layout
         cell_type_layout.addWidget(cell_type_label, 0, 0, 1, 1, qc.Qt.AlignBottom)
         cell_type_layout.addWidget(self.cell_type_table, 1, 0, 3, 8)
         cell_type_layout.addWidget(delete_cell_type_button, 4, 7, 1, 1, qc.Qt.AlignBottom)
@@ -355,11 +355,11 @@ class editCellTypeAnnotationWindow(qw.QMainWindow):
         title = qw.QLabel("Edit Annotation")
         title.setFont(qg.QFont("Times", 12, 2))
 
-        # gene set label
+        # cell type label
         ct_name = qw.QLabel("Cell-Type Name:")
         ct_name.setFont(qg.QFont("Times", 11))
 
-        # gene set box
+        # cell type box
         self.ct_box = qw.QLineEdit(self)
         self.ct_box.setFont(qg.QFont("Times", 11))
 
@@ -423,11 +423,11 @@ class newCellTypeAnnotationWindow(qw.QMainWindow):
         title = qw.QLabel("New Annotation")
         title.setFont(qg.QFont("Times", 12, 2))
 
-        # gene set label
+        # cell type label
         ct_name = qw.QLabel("Cell-Type Name:")
         ct_name.setFont(qg.QFont("Times", 11))
 
-        # gene set box
+        # cell type box
         self.ct_box = qw.QLineEdit(self)
         self.ct_box.setFont(qg.QFont("Times", 11))
 
@@ -503,7 +503,7 @@ class newGeneAnnotationWindow(qw.QMainWindow):
         gene_name = qw.QLabel("Gene Name:")
         gene_name.setFont(qg.QFont("Times", 11))
 
-        # gene set box
+        # cell type box
         self.gene_box = qw.QLineEdit(self)
         self.gene_box.setFont(qg.QFont("Times", 11))
 
@@ -565,7 +565,7 @@ class editGeneAnnotationWindow(qw.QMainWindow):
         gene_name = qw.QLabel("Gene Name:")
         gene_name.setFont(qg.QFont("Times", 11))
 
-        # gene set box
+        # cell type box
         self.gene_box = qw.QLineEdit(self)
         self.gene_box.setFont(qg.QFont("Times", 11))
 
