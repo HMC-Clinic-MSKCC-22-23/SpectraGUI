@@ -4,6 +4,7 @@ import PyQt5.QtWidgets as qw
 import InputPage as ip
 import OutputPage2 as op
 import scanpy as sc
+
 from spectra import spectra as spc
 
 class SpectraGUI:
@@ -19,7 +20,7 @@ class SpectraGUI:
         if(self.input.run_button_press()):
             anndata_path = self.input.annd_box.text()
             cell_type_key = self.input.ctype_box.text()
-            gene_dict = self.input.path_ann.genes_dict
+            self.gene_dict = self.input.path_ann.genes_dict
 
             try:
                 lambda_val = float(self.input.lam_box.text())
@@ -79,13 +80,13 @@ class SpectraGUI:
 
             self.input.hide()
             
+            self.check_gene_dict(self.gene_dict, adata, cell_type_key)
 
-            # model = spc.est_spectra(adata = adata,  gene_set_dictionary = gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
-                                    # rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+            model = spc.est_spectra(adata = adata,  gene_set_dictionary = self.gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
+                                     rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+            model = None
 
-
-            self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, cell_type_key = cell_type_key)
-            # self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, model = model, cell_type_key = cell_type_key)
+            self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, model = model, cell_type_key = cell_type_key)
             self.output.reRunButton.clicked.connect(self.run_spectra_again)
             self.output.MainWindow.show()
   
@@ -96,9 +97,18 @@ class SpectraGUI:
             self.output.MainWindow.close()
             self.input.show()
     
+    def check_gene_dict(self, gene_dict, adata, cell_type_key):
+        # must contain "global" key in addition to every unique cell type under .obs.<cell_type_key>
+        cell_type_list = list(gene_dict.keys())
+        for cell_type in adata.obs[cell_type_key].values:
+            if cell_type not in cell_type_list:
+                gene_dict[cell_type] = {}
+
+        if "global" not in cell_type_list:
+            gene_dict["global"] = {}
+
+
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
     ex = SpectraGUI(app.primaryScreen().size().width(), app.primaryScreen().size().height())
     sys.exit(app.exec_())
-
-
