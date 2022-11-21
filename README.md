@@ -2,7 +2,7 @@
 A GUI to sit over top SPECTRA, a factor analysis tool built by MSKCC.
 
 ## How to download
-- packages to install?
+Assuming you already have SPECTRA, download this and place in the same folder as SPECTRA.
 
 ## How to Run
 
@@ -18,8 +18,8 @@ Run the python script SpectraGUI.py the way you normally run scripts
 6. Click "Run" when you're ready!
 
 ### Output Screen
-1. UMAP (changing factors, recoloring, etc)
-2. Heatmap
-3. gene-gene graph
-4. save options
-5. re-running the model
+1. UMAP - can select factors to recolor the map, to see changes, click the recolor button.
+2. Heatmap - can select aspects of the adata to highlight, choose from the dropdown.
+3. gene-gene graph - click the button and a separate window will appear that you can resize in order to see the whole graph better.
+4. Gave options - check the things you want to save and click save, and it will download in the same folder as the GUI
+5. Re-running the model - click re-run to go back to the input screen. It will keep your parameters, but will lose your trained model. That functionality hasn't been implemented yet.
