@@ -157,7 +157,11 @@ class PathwayAnnotations(qw.QMainWindow):
         try:
             fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV",
                                                            (qc.QDir.homePath()), "CSV (*.csv *.tsv)")
+            if not fileName:
+                return
+                
             ff = open(fileName, 'r')
+            
             mytext = ff.read()
         #            print(mytext)
             ff.close()
@@ -170,8 +174,8 @@ class PathwayAnnotations(qw.QMainWindow):
                         reader = csv.reader(f, delimiter=',')
                         for row in reader:
                             items = [field for field in row]
-                                if items[0] == "Cell_Type":
-                                    continue
+                            if items[0] == "Cell_Type":
+                                continue
                         # self.genes.appendRow(items)
 
                             i = 2
@@ -189,8 +193,8 @@ class PathwayAnnotations(qw.QMainWindow):
                         reader = csv.reader(f, delimiter='\t')
                         for row in reader:
                             items = [field for field in row]
-                                if items[0] == "Cell_Type":
-                                    continue
+                            if items[0] == "Cell_Type":
+                                continue
                         # self.genes.appendRow(items)
 
                             i = 2
@@ -211,6 +215,7 @@ class PathwayAnnotations(qw.QMainWindow):
     def save_edit_press(self):
         self.hide()
 
+
     def delete_gene_press(self):
         current_dict = self.genes_dict.get(self.current_cell_type)
         reply = qw.QMessageBox.question(self.wid, "Delete",
@@ -228,6 +233,8 @@ class PathwayAnnotations(qw.QMainWindow):
         if reply == qw.QMessageBox.Yes:
             self.genes_dict.pop(self.current_cell_type)
             self.updateTable(self.genes_dict, self.cell_type_table)
+            self.updateTable({}, self.gene_table)
+            
 
 
     def edit_gene_press(self):
@@ -250,15 +257,15 @@ class PathwayAnnotations(qw.QMainWindow):
 
     def edit_cell_type_press(self):
         if self.current_cell_type is not None:
-            self.edit_cell_type.gs_box.setText(self.current_cell_type)
+            self.edit_cell_type.ct_box.setText(self.current_cell_type)
             self.edit_cell_type.pathway_box.setText(str(self.genes_dict.get(self.current_cell_type)))
         self.edit_cell_type.show()
         self.edit_cell_type.ok_button.clicked.connect(self.save_cell_type_edit)
 
     def save_cell_type_edit(self):
         try:
-            new_pathway = {self.edit_cell_type.gs_box.text(): ast.literal_eval(self.edit_cell_type.pathway_box.text())}
-            self.current_cell_type = self.edit_cell_type.gs_box.text()
+            new_pathway = {self.edit_cell_type.ct_box.text(): ast.literal_eval(self.edit_cell_type.pathway_box.text())}
+            self.current_cell_type = self.edit_cell_type.ct_box.text()
             self.genes_dict.update(new_pathway)
             self.updateTable(new_pathway.get(self.current_cell_type), self.gene_table)
             self.updateTable(self.genes_dict, self.cell_type_table)
@@ -289,14 +296,14 @@ class PathwayAnnotations(qw.QMainWindow):
             newWindow.exec()
 
     def add_cell_type_press(self):
-        self.new_cell_type.gs_box.setText("")
+        self.new_cell_type.ct_box.setText("")
         self.new_cell_type.pathway_box.setText("")
         self.new_cell_type.show()
         self.new_cell_type.ok_button.clicked.connect(self.save_new_cell_type)
 
     def save_new_cell_type(self):
         try:
-            new_gs = {self.new_cell_type.gs_box.text(): ast.literal_eval(self.new_cell_type.pathway_box.text())}
+            new_gs = {self.new_cell_type.ct_box.text(): ast.literal_eval(self.new_cell_type.pathway_box.text())}
             self.genes_dict = self.genes_dict | new_gs
             self.updateTable(self.genes_dict, self.cell_type_table)
             self.new_cell_type.hide()
@@ -382,8 +389,8 @@ class editCellTypeAnnotationWindow(qw.QMainWindow):
 
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8, qc.Qt.AlignCenter)
-        layout.addWidget(gs_name, 1, 0, 1, 1)
-        layout.addWidget(self.gs_box, 1, 1, 1, 2)
+        layout.addWidget(ct_name, 1, 0, 1, 1)
+        layout.addWidget(self.ct_box, 1, 1, 1, 2)
         layout.addWidget(pathway_name, 2, 0, 1, 1)
         layout.addWidget(self.pathway_box, 2, 1, 1, 2)
 
@@ -450,8 +457,8 @@ class newCellTypeAnnotationWindow(qw.QMainWindow):
 
         # add widgets to layout(s)
         layout.addWidget(title, 0, 0, 1, 8, qc.Qt.AlignCenter)
-        layout.addWidget(gs_name, 1, 0, 1, 1)
-        layout.addWidget(self.gs_box, 1, 1, 1, 2)
+        layout.addWidget(ct_name, 1, 0, 1, 1)
+        layout.addWidget(self.ct_box, 1, 1, 1, 2)
         layout.addWidget(pathway_name, 2, 0, 1, 1)
         layout.addWidget(self.pathway_box, 2, 1, 1, 2)
 
