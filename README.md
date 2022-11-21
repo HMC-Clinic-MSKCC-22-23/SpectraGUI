@@ -21,5 +21,5 @@ Run the python script SpectraGUI.py the way you normally run scripts
 1. UMAP - can select factors to recolor the map, to see changes, click the recolor button.
 2. Heatmap - can select aspects of the adata to highlight, choose from the dropdown.
 3. gene-gene graph - click the button and a separate window will appear that you can resize in order to see the whole graph better.
-4. Gave options - check the things you want to save and click save, and it will download in the same folder as the GUI
+4. Save options - check the things you want to save and click save, and it will download in the same folder as the GUI
 5. Re-running the model - click re-run to go back to the input screen. It will keep your parameters, but will lose your trained model. That functionality hasn't been implemented yet.
