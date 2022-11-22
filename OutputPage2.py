@@ -77,13 +77,13 @@ class OutputPage2(object):
 
     def draw_umap(self):
 
-        self.point_size = ((self.width * self.height) - 800000) / 100000
+        self.point_size = ((self.width * self.height) - 700000) / 100000
 
         self.ax = self.umap_canvas.figure.subplots()
         self.ax.grid(False)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
-        self.ax.set_title("")
+        self.ax.set_title("UMAP")
         # if we have loaded anndata, draw colorless umap
         if self.anndata:
             self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = self.point_size)
@@ -97,7 +97,7 @@ class OutputPage2(object):
         self.ax.grid(False)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
-        self.ax.set_title("UMAP")
+        self.ax.set_title("UMAP: Factor " + str(self.curr_factor))
 
         vmin = min(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
         vmax = max(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
@@ -114,8 +114,8 @@ class OutputPage2(object):
             vmin += 0
             
             
-        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, alpha = 0.9, cmap = "viridis")
-        self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, format = "%4.2e")
+        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, cmap = "viridis")
+        self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, format = "%4.3f")
         self.umap_canvas.draw()
 
     def genePopUp(self):
@@ -138,6 +138,33 @@ class OutputPage2(object):
             gg = ggg_window()
             gg.openWindow(self.photo_window)
             self.photo_window.show()
+
+    
+    def factorPopUp(self):
+        if self.anndata:
+
+            factorList = self.colorByFactor()
+
+
+        
+        else:
+
+            newWindow = QtWidgets.QMessageBox(self.MainWindow)
+            newWindow.setText("AnnData not properly formatted")
+            newWindow.exec()
+            
+    def colorByFactor(self):
+            if self.anndata:
+                factorList = []
+
+                for i in range(len(self.anndata.uns["SPECTRA_markers"])):
+                    factorNames = ', '.join(self.anndata.uns["SPECTRA_markers"][i][:5])
+                    factorString = "Factor " + str(i) + ": " + factorNames
+                    factorList.append(factorString)
+
+                return factorList
+            else:
+                return ["Factor 0", "Factor 1", "Factor 2", "Factor 3"]
 
     def setupUi(self):
 
@@ -173,22 +200,8 @@ class OutputPage2(object):
         self.dropdown = QtWidgets.QComboBox(self.MainWindow)
 
 
-        def colorByFactor():
-            if self.anndata:
-                factorList = []
 
-                for i in range(len(self.anndata.uns["SPECTRA_markers"])):
-                    factorNames = ', '.join(self.anndata.uns["SPECTRA_markers"][i][:5])
-                    factorString = "Factor " + str(i) + ": " + factorNames
-                    factorList.append(factorString)
-
-                return factorList
-            else:
-                return ["Factor 0", "Factor 1", "Factor 2", "Factor 3"]
-
-
-
-        self.dropdown.addItems(colorByFactor())
+        self.dropdown.addItems(self.colorByFactor())
 
         self.output_options.addWidget(self.dropdown, 1, 0, 1, 2)
 
@@ -281,6 +294,10 @@ class OutputPage2(object):
 
         self.heatmap_options.addWidget(self.heatmap_dropdown, 1, 0, 1, 2)
 
+        heatmap_factors_button = QtWidgets.QPushButton(self.MainWindow)
+        heatmap_factors_button.setText("Add / Remove Factors")
+        heatmap_factors_button.clicked.connect(self.factorPopUp)
+
         self.heatmap_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
         self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
         self.heatmap_options.setRowMinimumHeight(2, int( self.height / 15))
@@ -362,7 +379,26 @@ class OutputPage2(object):
         self.MainWindow.setLayout(self.main_layout)
 
 
-       
+class factor_window(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.title = "Select Heatmap Factors"
+        self.left = 150
+        self.top = 150
+        self.width = 400
+        self.height = 300
+        self.initFactorWindow()
+    
+    def initFactorWindow(self):
+
+        # make the window
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+
+        # make central widget
+        self.wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(self.wid)
 
 
 class ggg_window(object):
