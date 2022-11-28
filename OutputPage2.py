@@ -47,7 +47,9 @@ class OutputPage2(object):
             df["y_axis"] = self.anndata.obs[y_axis].values
             df = df.groupby("y_axis").mean()
 
-            g = sb.clustermap(df, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, cmap = "viridis", standard_scale = 0, linewidth = 0)
+            df_plot = df.iloc[:, self.factor_list]
+
+            g = sb.clustermap(df_plot, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, cmap = "viridis", standard_scale = 0, linewidth = 0)
 
             g.ax_heatmap.set_xlabel("Factors")
             g.ax_heatmap.set_ylabel(y_axis)
@@ -64,6 +66,7 @@ class OutputPage2(object):
 
     def redraw_heatmap(self):
         new_data = self.heatmap_dropdown.currentText()
+        self.heatmap_canvas.figure.clear()
         self.plots.removeWidget(self.heatmap_canvas)
         self.heatmap_canvas = FigureCanvasQTAgg(self.draw_heatmap(new_data))
         self.plots.addWidget(self.heatmap_canvas)
@@ -139,16 +142,24 @@ class OutputPage2(object):
             gg.openWindow(self.photo_window)
             self.photo_window.show()
 
+    def change_factors(self):
+
+        new_list = []
+
+        for i, checkBox in enumerate(self.factor_popup.box_list):
+            if checkBox.isChecked():
+                new_list.append(i)
+
+        self.factor_list = new_list
+        self.redraw_heatmap()
     
     def factorPopUp(self):
         if self.anndata:
 
-            factorList = self.colorByFactor()
+            self.factor_popup = factor_window(self.colorByFactor(), self.factor_list, self.change_factors)
+            self.factor_popup.show()
 
-
-        
         else:
-
             newWindow = QtWidgets.QMessageBox(self.MainWindow)
             newWindow.setText("AnnData not properly formatted")
             newWindow.exec()
@@ -176,6 +187,7 @@ class OutputPage2(object):
 
         self.plots = QtWidgets.QHBoxLayout()
 
+        self.factor_list = list(range(len(self.anndata.uns["SPECTRA_markers"])))
 
         self.umap_canvas = FigureCanvasQTAgg(plt.Figure())
         self.draw_umap()
@@ -286,8 +298,6 @@ class OutputPage2(object):
             else:
                 return ["obs1", "obs2", "obs3"]
 
-
-
         self.heatmap_dropdown.addItems(getObsNames())
 
         self.heatmap_dropdown.currentTextChanged.connect(self.redraw_heatmap)
@@ -296,7 +306,12 @@ class OutputPage2(object):
 
         heatmap_factors_button = QtWidgets.QPushButton(self.MainWindow)
         heatmap_factors_button.setText("Add / Remove Factors")
+
+        self.factor_popup = None
+
         heatmap_factors_button.clicked.connect(self.factorPopUp)
+
+        self.heatmap_options.addWidget(heatmap_factors_button)
 
         self.heatmap_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
         self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
@@ -343,17 +358,17 @@ class OutputPage2(object):
 
 
         def saveData():
-            if self.checkBox_adata.isChecked() == True:
+            if self.checkBox_adata.isChecked():
                 self.anndata.write_h5ad("new_annData.h5ad")
 
-            if self.checkBox_model.isChecked() == True:
+            if self.checkBox_model.isChecked():
                 print("model save")
                 # self.model.save("SPECTRA_model")
 
-            if self.checkBox_umap.isChecked() == True:
+            if self.checkBox_umap.isChecked():
                 self.umap_canvas.print_figure("UMAP_figure.png")
 
-            if self.checkBox_heatmap.isChecked() == True:
+            if self.checkBox_heatmap.isChecked():
                 self.heatmap_canvas.print_figure("Heatmap_figure.png")
 
         self.save_button = QtWidgets.QPushButton()
@@ -381,24 +396,49 @@ class OutputPage2(object):
 
 class factor_window(QtWidgets.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, factorList, checkedFactors, checkFunction):
         super().__init__()
         self.title = "Select Heatmap Factors"
         self.left = 150
         self.top = 150
-        self.width = 400
+        self.width = 600
         self.height = 300
+        self.box_list = []
+        self.factor_list = factorList
+        self.checkedFactors = checkedFactors
+        self.checkFunction = checkFunction
         self.initFactorWindow()
     
     def initFactorWindow(self):
 
-        # make the window
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.scroll = QtWidgets.QScrollArea()             # Scroll Area which contains the widgets, set as the centralWidget
+        self.widget = QtWidgets.QWidget()                 # Widget that contains the collection of Vertical Box
+        self.vbox = QtWidgets.QVBoxLayout()               # The Vertical Box that contains the Horizontal Boxes of  labels and buttons
 
-        # make central widget
-        self.wid = QtWidgets.QWidget(self)
-        self.setCentralWidget(self.wid)
+        for i, label in enumerate(self.factor_list):
+            box = QtWidgets.QCheckBox()
+            box.setText(label)
+            
+            if i in self.checkedFactors:
+                box.setChecked(True)
+            
+            box.stateChanged.connect(self.checkFunction)
+
+            self.box_list.append(box)
+            self.vbox.addWidget(box)
+
+        self.widget.setLayout(self.vbox)
+
+        #Scroll Area Properties
+        self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.widget)
+
+        self.setCentralWidget(self.scroll)
+
+        self.setGeometry(150, 150, self.width, self.height)
+        self.setWindowTitle('Scroll Area Demonstration')
 
 
 class ggg_window(object):
