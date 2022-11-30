@@ -49,7 +49,12 @@ class OutputPage2(object):
 
             df_plot = df.iloc[:, self.factor_list]
 
-            g = sb.clustermap(df_plot, row_cluster = False, xticklabels = 0, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, cmap = "viridis", standard_scale = 0, linewidth = 0)
+            if len(self.factor_list) <= 20:
+                x_ticks = True
+            else:
+                x_ticks = 0
+
+            g = sb.clustermap(df_plot, row_cluster = False, xticklabels = x_ticks, col_cluster = True, dendrogram_ratio = (0, 0), cbar_pos = None, cmap = "viridis", standard_scale = 0, linewidth = 0)
 
             g.ax_heatmap.set_xlabel("Factors")
             g.ax_heatmap.set_ylabel(y_axis)
@@ -314,8 +319,9 @@ class OutputPage2(object):
         self.heatmap_options.addWidget(heatmap_factors_button)
 
         self.heatmap_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
-        self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
-        self.heatmap_options.setRowMinimumHeight(2, int( self.height / 15))
+        # self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
+        self.heatmap_options.setRowMinimumHeight(1, int(self.height / 10))
+        # self.heatmap_options.setRowMinimumHeight(2, int( self.height / 15))
 
         self.heatmap_options_frame.setLayout(self.heatmap_options)
 
@@ -376,8 +382,6 @@ class OutputPage2(object):
         self.save_button.clicked.connect(saveData)
 
         self.save_options.addWidget(self.save_button, 3, 2)
-
-        # self.save_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 5))
 
         self.save_options_frame.setLayout(self.save_options)
 
