@@ -33,8 +33,6 @@ class AdvancedOptions(qw.QMainWindow):
         title.setFont(qg.QFont("Times", 20, 2))
 
         # highly variable label
-        # annd = qw.QLabel("Use highly variable")
-        #annd.setFont(qg.QFont("Times", 11))
 
         # highly variable checkbox
         self.hv_label = qw.QCheckBox("Use highly variable")
@@ -42,8 +40,7 @@ class AdvancedOptions(qw.QMainWindow):
         self.hv_label.setChecked(True)
 
         # ndarray checkbox
-        #nd_label = qw.QCheckBox("Use nd array")
-        # nd_label.setChecked(False)
+
 
         # rho label
         rho = qw.QLabel("Rho value")
@@ -122,7 +119,6 @@ class AdvancedOptions(qw.QMainWindow):
 
         self.wid.setLayout(layout)
 
-        # self.show()
 
     def ok_press(self):
         self.close()
