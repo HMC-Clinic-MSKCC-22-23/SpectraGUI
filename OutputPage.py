@@ -23,9 +23,7 @@ class OutputPage(qw.QMainWindow):
         else:
             self.umap_figure = matplotlib.pyplot.figure()
 
-        # model = spc.est_spectra(adata = anndata,  gene_set_dictionary = gene_dict, cell_type_key = "cell_type", lam = lambda_val, use_highly_variable = highly_var, 
-        #                             rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
-
+     
 
 
         self.gene_dictionary = gene_dict
@@ -117,8 +115,6 @@ class OutputPage(qw.QMainWindow):
         layout.addWidget(saveWidget, 1,0,1,1)
 
         self.wid.setLayout(layout)
-
-        # self.show()
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
