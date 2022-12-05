@@ -147,11 +147,11 @@ class PathwayAnnotations(qw.QMainWindow):
 
         layout.setRowStretch(1, 20)
         layout.setRowStretch(4, 20)
-        # layout.setVerticalSpacing(50)
+
 
         self.wid.setLayout(layout)
 
-        # self.show()
+   
 
     def csv_press(self,fileName):
         try:
@@ -163,9 +163,9 @@ class PathwayAnnotations(qw.QMainWindow):
             ff = open(fileName, 'r')
             
             mytext = ff.read()
-        #            print(mytext)
+
             ff.close()
-        # self.genes.insertPlainText(fileName)
+
             if fileName:
                 f = open(fileName, 'r')
                 with f:
@@ -176,7 +176,7 @@ class PathwayAnnotations(qw.QMainWindow):
                             items = [field for field in row]
                             if items[0] == "Cell_Type":
                                 continue
-                        # self.genes.appendRow(items)
+          
 
                             i = 2
                             if items[0] not in self.genes_dict:
@@ -188,14 +188,14 @@ class PathwayAnnotations(qw.QMainWindow):
                                     self.genes_dict[items[0]][items[1]] += [items[i]]
                                 i += 1
 
-                    # self.tableView.resizeColumnsToContents()
+
                     else:
                         reader = csv.reader(f, delimiter='\t')
                         for row in reader:
                             items = [field for field in row]
                             if items[0] == "Cell_Type":
                                 continue
-                        # self.genes.appendRow(items)
+
 
                             i = 2
                             if items[0] not in self.genes_dict:
