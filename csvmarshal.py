@@ -28,9 +28,9 @@ class Example(QWidget):
                                                 (QtCore.QDir.homePath()), "CSV (*.csv *.tsv)")
         ff = open(fileName, 'r')
         mytext = ff.read()
-        #            print(mytext)
+
         ff.close()
-        #self.genes.insertPlainText(fileName)
+
         if fileName:
             f = open(fileName, 'r')
             with f:
@@ -40,12 +40,8 @@ class Example(QWidget):
                     self.genes.clear()
                     for row in reader:
                         items = [field for field in row]
-                        #self.genes.appendRow(items)
-                        '''
-                        for item in items:
-                            self.genes.insertPlainText(item)
-                            self.genes.insertPlainText(" ")
-                        '''
+
+       
                         i =2
                         if items[0] not in self.genes_dict:
                             self.genes_dict[items[0]] = {}
@@ -57,18 +53,13 @@ class Example(QWidget):
                             i += 1
                     self.genes.insertPlainText(str(self.genes_dict))
 
-                    #self.tableView.resizeColumnsToContents()
+  
                 else:
                     reader = csv.reader(f, delimiter='\t')
                     self.genes.clear()
                     for row in reader:
                         items = [field for field in row]
-                        # self.genes.appendRow(items)
-                        '''
-                        for item in items:
-                            self.genes.insertPlainText(item)
-                            self.genes.insertPlainText(" ")
-                        '''
+    
                         i = 2
                         if items[0] not in self.genes_dict:
                             self.genes_dict[items[0]] = {}
