@@ -89,7 +89,6 @@ class InputPage(qw.QMainWindow):
 
         # run button
         self.run_button = qw.QPushButton("Run")
-        #self.run_button.clicked.connect(self.run_button_press)
         self.run_button.setFont(qg.QFont("Times", 14))
 
         # add widgets to the layout
