@@ -4,7 +4,7 @@ import seaborn as sb
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-# matplotlib.use("Qt5Agg")
+
 import os
 from spectra import spectra as spc
 
@@ -271,8 +271,7 @@ class OutputPage2(object):
         self.output_options.addWidget(self.reRunButton, 3, 2)
 
         self.output_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
-        # self.output_options.setRowMinimumHeight(0, int( self.height / 9))
-        # self.output_options.setRowMinimumHeight(2, int( self.height / 15))
+ 
 
         self.output_options_frame.setLayout(self.output_options)
         self.output_options_frame.setMaximumWidth(int(self.width / 2.2))
@@ -319,9 +318,9 @@ class OutputPage2(object):
         self.heatmap_options.addWidget(heatmap_factors_button)
 
         self.heatmap_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
-        # self.heatmap_options.setRowMinimumHeight(0, int( self.height / 9))
+   
         self.heatmap_options.setRowMinimumHeight(1, int(self.height / 10))
-        # self.heatmap_options.setRowMinimumHeight(2, int( self.height / 15))
+
 
         self.heatmap_options_frame.setLayout(self.heatmap_options)
 
@@ -329,8 +328,7 @@ class OutputPage2(object):
 
 
         self.save_options_frame = QtWidgets.QFrame()
-        # self.save_options_frame.setFrameStyle(QtWidgets.QFrame.StyledPanel)
-        # self.save_options_frame.setLineWidth(2)
+       
 
         self.save_options = QtWidgets.QGridLayout()
 
@@ -369,7 +367,7 @@ class OutputPage2(object):
 
             if self.checkBox_model.isChecked():
                 print("model save")
-                # self.model.save("SPECTRA_model")
+
 
             if self.checkBox_umap.isChecked():
                 self.umap_canvas.print_figure("UMAP_figure.png")
