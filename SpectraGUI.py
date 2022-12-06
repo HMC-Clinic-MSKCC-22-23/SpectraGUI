@@ -108,5 +108,6 @@ class SpectraGUI:
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
+    app.setStyle("Windows")
     ex = SpectraGUI(app.primaryScreen().size().width(), app.primaryScreen().size().height())
     sys.exit(app.exec_())
