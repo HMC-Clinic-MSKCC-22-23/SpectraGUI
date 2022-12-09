@@ -4,7 +4,6 @@ import PyQt5.QtWidgets as qw
 import InputPage as ip
 import OutputPage2 as op
 import scanpy as sc
-
 from spectra import spectra as spc
 
 class SpectraGUI:
@@ -82,7 +81,10 @@ class SpectraGUI:
             
             self.check_gene_dict(self.gene_dict, adata, cell_type_key)
 
-            model = None
+            model = spc.est_spectra(adata = adata,  gene_set_dictionary = self.gene_dict, cell_type_key = cell_type_key, lam = lambda_val, use_highly_variable = highly_var, 
+                                    rho = rho_val, delta = delta_val, kappa = kappa_val, use_weights = use_weights, n_top_vals = top_genes)
+            
+            # model = None
 
             self.output = op.OutputPage2(self.screen_width, self.screen_height, anndata = adata, model = model, cell_type_key = cell_type_key)
             self.output.reRunButton.clicked.connect(self.run_spectra_again)

@@ -17,7 +17,7 @@ class InputPage(qw.QMainWindow):
         self.top = 100
         self.width = int(screen_width // 4)
         self.height = int(screen_height // 4)
-        self.path_ann = pa.PathwayAnnotations()
+        self.path_ann = pa.PathwayAnnotations(self.width, self.height)
         self.adv_op = ao.AdvancedOptions()
         self.initUI()
 

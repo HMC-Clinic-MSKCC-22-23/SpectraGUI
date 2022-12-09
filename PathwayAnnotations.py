@@ -7,18 +7,18 @@ import ast, os, csv, json
 
 
 class PathwayAnnotations(qw.QMainWindow):
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Edit Pathway Annotations"
         self.left = 150
         self.top = 150
-        self.width = 800
-        self.height = 900
+        self.width = int(screen_width // 0.6)
+        self.height = int(screen_height // 0.4)
         self.genes_dict = {}
-        self.edit_cell_type = editCellTypeAnnotationWindow()
-        self.edit_gene = editGeneAnnotationWindow()
-        self.new_gene = newGeneAnnotationWindow()
-        self.new_cell_type = newCellTypeAnnotationWindow()
+        self.edit_cell_type = editCellTypeAnnotationWindow(self.width, self.height)
+        self.edit_gene = editGeneAnnotationWindow(self.width, self.height)
+        self.new_gene = newGeneAnnotationWindow(self.width, self.height)
+        self.new_cell_type = newCellTypeAnnotationWindow(self.width, self.height)
         self.current_cell_type = None
         self.current_pathway = None
         self.initEditAnnotations()
@@ -337,13 +337,13 @@ class PathwayAnnotations(qw.QMainWindow):
 
 
 class editCellTypeAnnotationWindow(qw.QMainWindow):
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Edit Annotation"
         self.left = 100
         self.top = 100
-        self.width = 900
-        self.height = 200
+        self.width = int(screen_width // 0.7)
+        self.height = int(screen_height // 4)
         self.editCellTypeAnnotation()
 
     def editCellTypeAnnotation(self):
@@ -405,13 +405,13 @@ class editCellTypeAnnotationWindow(qw.QMainWindow):
 
 
 class newCellTypeAnnotationWindow(qw.QMainWindow):
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Add New Annotation"
         self.left = 100
         self.top = 100
-        self.width = 900
-        self.height = 200
+        self.width = int(screen_width // 0.7)
+        self.height = int(screen_height // 4)
         self.newCellTypeAnnotation()
 
     def newCellTypeAnnotation(self):
@@ -473,13 +473,13 @@ class newCellTypeAnnotationWindow(qw.QMainWindow):
 
 
 class newGeneAnnotationWindow(qw.QMainWindow):
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Add New Annotation"
         self.left = 100
         self.top = 100
-        self.width = 900
-        self.height = 200
+        self.width = int(screen_width // 0.7)
+        self.height = int(screen_height // 4)
         self.newAnnotation()
 
     def newAnnotation(self):
@@ -543,13 +543,13 @@ class newGeneAnnotationWindow(qw.QMainWindow):
 
 
 class editGeneAnnotationWindow(qw.QMainWindow):
-    def __init__(self):
+    def __init__(self, screen_width, screen_height):
         super().__init__()
         self.title = "Edit Annotation"
         self.left = 100
         self.top = 100
-        self.width = 900
-        self.height = 200
+        self.width = int(screen_width // 0.7)
+        self.height = int(screen_height // 4)
         self.newAnnotation()
 
     def newAnnotation(self):
