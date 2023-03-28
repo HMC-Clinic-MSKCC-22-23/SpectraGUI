@@ -78,6 +78,15 @@ class InputPage(qw.QMainWindow):
         self.lam_box.setText("0.0001")
         self.lam_box.setFont(qg.QFont("Times", 11))
 
+        # epochs label
+        epochs = qw.QLabel("Number of epochs:")
+        epochs.setFont(qg.QFont("Times", 11))
+
+        # epochs input box
+        self.epochs_box = qw.QLineEdit(self)
+        self.epochs_box.setText("10000")
+        self.epochs_box.setFont(qg.QFont("Times", 11))
+
         # advanced options label
         adv = qw.QLabel("Advanced options:")
         adv.setFont(qg.QFont("Times", 11))
@@ -101,11 +110,13 @@ class InputPage(qw.QMainWindow):
         layout.addWidget(pann_edit_button, 3, 4)
         layout.addWidget(lam, 4, 0, 1, 3)
         layout.addWidget(self.lam_box, 4, 4)
-        layout.addWidget(adv, 5, 0, 1, 3)
-        layout.addWidget(adv_edit_button, 5, 4)
-        layout.addWidget(self.run_button, 7, 0, 1, 5, qc.Qt.AlignCenter)
+        layout.addWidget(epochs, 5, 0, 1, 3)
+        layout.addWidget(self.epochs_box, 5, 4)
+        layout.addWidget(adv, 6, 0, 1, 3)
+        layout.addWidget(adv_edit_button, 6, 4)
+        layout.addWidget(self.run_button, 8, 0, 1, 5, qc.Qt.AlignCenter)
 
-        layout.setRowStretch(6, self.height // 3)
+        layout.setRowStretch(7, self.height // 3)
         layout.setHorizontalSpacing(self.height // 4)
 
 

@@ -106,7 +106,7 @@ class PathwayAnnotations(qw.QMainWindow):
 
         # ok button
         upload_button = qw.QPushButton("Upload")
-        upload_button.clicked.connect(self.csv_press)
+        upload_button.clicked.connect(self.upload_press)
         upload_button.setFont(qg.QFont("Times", 11))
 
         # cancel button
@@ -153,59 +153,68 @@ class PathwayAnnotations(qw.QMainWindow):
 
    
 
-    def csv_press(self,fileName):
+    def upload_press(self,fileName):
         try:
-            fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV",
-                                                           (qc.QDir.homePath()), "CSV (*.csv *.tsv)")
+            fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV or JSON",
+                                                           (qc.QDir.homePath()), "CSV (*.csv *.tsv), JSON (*.json)")
             if not fileName:
                 return
-                
-            ff = open(fileName, 'r')
             
-            mytext = ff.read()
+            ff = open(fileName, 'r')
 
-            ff.close()
+            if fileName.endswith("json"):
+                
+                self.genes_dict = (json.load(ff))
 
-            if fileName:
-                f = open(fileName, 'r')
-                with f:
-                    self.fname = os.path.splitext(str(fileName))[0].split("/")[-1]
-                    if mytext.count(';') <= mytext.count(','):  # tab?
-                        reader = csv.reader(f, delimiter=',')
-                        for row in reader:
-                            items = [field for field in row]
-                            if items[0] == "Cell_Type":
-                                continue
-          
+                ff.close()
+            
+            else:
 
-                            i = 2
-                            if items[0] not in self.genes_dict:
-                                self.genes_dict[items[0]] = {}
-                            if items[1] not in self.genes_dict[items[0]]:
-                                self.genes_dict[items[0]][items[1]] = []
-                            while len(items) > i:
-                                if items[i] != "":
-                                    self.genes_dict[items[0]][items[1]] += [items[i]]
-                                i += 1
+                mytext = ff.read()
+
+                ff.close()
+
+                if fileName:
+                    f = open(fileName, 'r')
+                    with f:
+                        self.fname = os.path.splitext(str(fileName))[0].split("/")[-1]
+                        if mytext.count(';') <= mytext.count(','):  # tab?
+                            reader = csv.reader(f, delimiter=',')
+                            for row in reader:
+                                items = [field for field in row]
+                                if items[0] == "Cell_Type":
+                                    continue
+            
+
+                                i = 2
+                                if items[0] not in self.genes_dict:
+                                    self.genes_dict[items[0]] = {}
+                                if items[1] not in self.genes_dict[items[0]]:
+                                    self.genes_dict[items[0]][items[1]] = []
+                                while len(items) > i:
+                                    if items[i] != "":
+                                        self.genes_dict[items[0]][items[1]] += [items[i]]
+                                    i += 1
 
 
-                    else:
-                        reader = csv.reader(f, delimiter='\t')
-                        for row in reader:
-                            items = [field for field in row]
-                            if items[0] == "Cell_Type":
-                                continue
+                        else:
+                            reader = csv.reader(f, delimiter='\t')
+                            for row in reader:
+                                items = [field for field in row]
+                                if items[0] == "Cell_Type":
+                                    continue
 
 
-                            i = 2
-                            if items[0] not in self.genes_dict:
-                                self.genes_dict[items[0]] = {}
-                            if items[1] not in self.genes_dict[items[0]]:
-                                self.genes_dict[items[0]][items[1]] = []
-                            while len(items) > i:
-                                if items[i] != "":
-                                    self.genes_dict[items[0]][items[1]] += [items[i]]
-                                i += 1
+                                i = 2
+                                if items[0] not in self.genes_dict:
+                                    self.genes_dict[items[0]] = {}
+                                if items[1] not in self.genes_dict[items[0]]:
+                                    self.genes_dict[items[0]][items[1]] = []
+                                while len(items) > i:
+                                    if items[i] != "":
+                                        self.genes_dict[items[0]][items[1]] += [items[i]]
+                                    i += 1         
+                        
             self.updateTable(self.genes_dict, self.cell_type_table)
         except:
             newWindow = qw.QMessageBox(self.wid)
@@ -217,6 +226,13 @@ class PathwayAnnotations(qw.QMainWindow):
 
 
     def delete_gene_press(self):
+
+        if not self.current_pathway:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("You must select a gene set to delete.")
+            newWindow.exec()
+            return
+
         current_dict = self.genes_dict.get(self.current_cell_type)
         reply = qw.QMessageBox.question(self.wid, "Delete",
                                         "Are you sure you want to delete the pathway " + self.current_pathway + "?",
@@ -227,6 +243,13 @@ class PathwayAnnotations(qw.QMainWindow):
             self.updateTable(self.genes_dict, self.cell_type_table)
 
     def delete_cell_type_press(self):
+
+        if not self.current_pathway:
+            newWindow = qw.QMessageBox(self.wid)
+            newWindow.setText("You must select a cell type to delete.")
+            newWindow.exec()
+            return
+
         reply = qw.QMessageBox.question(self.wid, "Delete",
                                         "Are you sure you want to delete the cell_type " + self.current_cell_type + "?",
                                         qw.QMessageBox.Yes | qw.QMessageBox.No, qw.QMessageBox.No)
