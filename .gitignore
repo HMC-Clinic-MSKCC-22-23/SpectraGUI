@@ -1,0 +1,5 @@
+# Ignore the python cache from PyQt
+__pycache__
+
+# Ignore gene-gene graph constructs
+*.html

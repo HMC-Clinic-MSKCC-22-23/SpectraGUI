@@ -1,15 +1,22 @@
 # import our libraries
-import sys
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]),'spectra'))
-from spectra import spectra as spc
-
+import sys, os, yaml
+import scanpy as sc
 import PyQt5.QtWidgets as qw
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtCore import QThread
+
 import InputPage as ip
 import OutputPage as op
-import scanpy as sc
-import json
+
+# find spectra installation
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+
+sys.path.append(os.path.join(sys.path[0], config["spectra_path"]))
+
+if config["gpu_enable"]:
+    from spectra import spectra_gpu as spc
+else:
+    from spectra import spectra as spc
 
 class ModelBuilder(QThread):
     
@@ -18,6 +25,9 @@ class ModelBuilder(QThread):
         self.gui_class = gui_class
 
     def run(self):
+
+        print("The model building has begun. Standby for a progress bar.")
+
         self.model = spc.est_spectra(adata = self.gui_class.adata,  gene_set_dictionary = self.gui_class.gene_dict, cell_type_key = self.gui_class.cell_type_key, 
                                      lam = self.gui_class.lambda_val, use_highly_variable = self.gui_class.highly_var, rho = self.gui_class.rho_val, 
                                      delta = self.gui_class.delta_val, kappa = self.gui_class.kappa_val, use_weights = self.gui_class.use_weights, 
@@ -102,6 +112,12 @@ class SpectraGUI:
                 return
             
             self.check_gene_dict()
+
+            if len(self.gene_dict["global"]) == 0:
+                newWindow = qw.QMessageBox(self.input.wid)
+                newWindow.setText("The provided 'global' gene set cannot be empty - try again")
+                newWindow.exec()
+                return
 
             self.workerThread = ModelBuilder(self)
             self.workerThread.finished.connect(self.end_thread)

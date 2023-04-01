@@ -1,0 +1,6 @@
+# File path pointing to installation of SPECTRA
+- spectra_path: "../spectra"
+
+# True if SPECTRA can utilize a compatible GPU
+# False otherwise
+- gpu_enable: False
