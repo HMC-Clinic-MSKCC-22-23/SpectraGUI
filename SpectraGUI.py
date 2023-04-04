@@ -4,9 +4,6 @@ import scanpy as sc
 import PyQt5.QtWidgets as qw
 from PyQt5.QtCore import QThread
 
-import InputPage as ip
-import OutputPage as op
-
 # find spectra installation
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
@@ -18,6 +15,9 @@ if config["gpu_enable"]:
 else:
     from spectra import spectra as spc
 
+import InputPage as ip
+import OutputPage as op
+
 class ModelBuilder(QThread):
     
     def __init__(self, gui_class):
@@ -26,7 +26,7 @@ class ModelBuilder(QThread):
 
     def run(self):
 
-        print("The model building has begun. Standby for a progress bar.")
+        print("\nThe model building has begun. Standby for a progress bar:")
 
         self.model = spc.est_spectra(adata = self.gui_class.adata,  gene_set_dictionary = self.gui_class.gene_dict, cell_type_key = self.gui_class.cell_type_key, 
                                      lam = self.gui_class.lambda_val, use_highly_variable = self.gui_class.highly_var, rho = self.gui_class.rho_val, 

@@ -156,7 +156,7 @@ class PathwayAnnotations(qw.QMainWindow):
     def upload_press(self,fileName):
         try:
             fileName, _ = qw.QFileDialog.getOpenFileName(self, "Open CSV or JSON",
-                                                           (qc.QDir.homePath()), "CSV (*.csv *.tsv), JSON (*.json)")
+                                                           (qc.QDir.homePath()), "CSV (*.csv *.tsv);;JSON (*.json)")
             if not fileName:
                 return
             
@@ -189,8 +189,10 @@ class PathwayAnnotations(qw.QMainWindow):
                                 i = 2
                                 if items[0] not in self.genes_dict:
                                     self.genes_dict[items[0]] = {}
-                                if items[1] not in self.genes_dict[items[0]]:
+
+                                if items[1] not in self.genes_dict[items[0]] and items[1] != "":
                                     self.genes_dict[items[0]][items[1]] = []
+
                                 while len(items) > i:
                                     if items[i] != "":
                                         self.genes_dict[items[0]][items[1]] += [items[i]]
@@ -208,8 +210,10 @@ class PathwayAnnotations(qw.QMainWindow):
                                 i = 2
                                 if items[0] not in self.genes_dict:
                                     self.genes_dict[items[0]] = {}
-                                if items[1] not in self.genes_dict[items[0]]:
+
+                                if items[1] not in self.genes_dict[items[0]] and items[1] != "":
                                     self.genes_dict[items[0]][items[1]] = []
+
                                 while len(items) > i:
                                     if items[i] != "":
                                         self.genes_dict[items[0]][items[1]] += [items[i]]
@@ -244,7 +248,7 @@ class PathwayAnnotations(qw.QMainWindow):
 
     def delete_cell_type_press(self):
 
-        if not self.current_pathway:
+        if not self.current_cell_type:
             newWindow = qw.QMessageBox(self.wid)
             newWindow.setText("You must select a cell type to delete.")
             newWindow.exec()

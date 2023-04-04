@@ -1,14 +1,10 @@
+
+import os
 import scanpy as sc
 import pandas as pd
 import seaborn as sb
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-
-import os
-from spectra import spectra as spc
-
-
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
