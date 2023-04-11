@@ -1,5 +1,6 @@
 
 import os
+from spectra import spectra as spc
 import scanpy as sc
 import pandas as pd
 import seaborn as sb
@@ -141,9 +142,13 @@ class OutputPage(object):
         else:
             big_graph = self.model.return_graph()
 
+            if not self.curr_factor:
+                self.curr_factor = self.dropdown.currentIndex()
+
             genes_set = []
             for i in self.anndata.uns["SPECTRA_markers"][self.curr_factor]:
                 genes_set.append(str(i))
+
             out = spc.graph_network(self.anndata, big_graph, genes_set)
             out.show("ggGraph.html")
 
