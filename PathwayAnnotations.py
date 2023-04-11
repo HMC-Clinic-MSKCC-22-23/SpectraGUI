@@ -15,6 +15,7 @@ class PathwayAnnotations(qw.QMainWindow):
         self.width = int(screen_width // 0.6)
         self.height = int(screen_height // 0.4)
         self.genes_dict = {}
+        self.old_genes_dict = {}
         self.edit_cell_type = editCellTypeAnnotationWindow(self.width, self.height)
         self.edit_gene = editGeneAnnotationWindow(self.width, self.height)
         self.new_gene = newGeneAnnotationWindow(self.width, self.height)
@@ -226,6 +227,7 @@ class PathwayAnnotations(qw.QMainWindow):
             newWindow.exec()
 
     def save_edit_press(self):
+        self.old_genes_dict = self.genes_dict.copy()
         self.hide()
 
 
@@ -340,6 +342,8 @@ class PathwayAnnotations(qw.QMainWindow):
             newWindow.exec()
 
     def cancel_press(self):
+        self.genes_dict = self.old_genes_dict.copy()
+        self.updateTable(self.genes_dict, self.cell_type_table)
         self.close()
 
     def updateTable(self, dict, table):
