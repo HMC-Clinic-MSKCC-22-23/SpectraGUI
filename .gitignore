@@ -3,3 +3,9 @@ __pycache__
 
 # Ignore gene-gene graph constructs
 *.html
+
+# Ignore saved files
+*.h5ad
+*.pt
+*.csv
+*.png

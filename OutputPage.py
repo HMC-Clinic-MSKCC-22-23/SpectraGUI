@@ -91,8 +91,6 @@ class OutputPage(object):
 
     def draw_umap(self):
 
-        
-
         self.ax = self.umap_canvas.figure.subplots()
         self.ax.grid(False)
         self.ax.set_xticks([])
@@ -217,7 +215,7 @@ class OutputPage(object):
         self.plots.addWidget(self.umap_canvas)
         self.plots.addWidget(self.heatmap_canvas)
 
-        self.main_layout.addLayout(self.plots, 0, 0, 1, 3)
+        self.main_layout.addLayout(self.plots, 0, 0, 1, 5)
 
         # frame to hold the output options
         self.output_options_frame = QtWidgets.QFrame()
@@ -293,11 +291,11 @@ class OutputPage(object):
         self.geneGeneButton.clicked.connect(self.genePopUp)
 
         self.output_options.addWidget(self.geneGeneButton, 3, 1)
+        self.output_options.setHorizontalSpacing(15)
 
-        self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
-        self.reRunButton.setText("Run again")
-
-        self.output_options.addWidget(self.reRunButton, 3, 2)
+        # self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
+        # self.reRunButton.setText("Run again")
+        # self.output_options.addWidget(self.reRunButton, 3, 2)
 
         # self.output_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
  
@@ -353,7 +351,7 @@ class OutputPage(object):
 
         self.heatmap_options_frame.setLayout(self.heatmap_options)
 
-        self.main_layout.addWidget(self.heatmap_options_frame, 1, 1)
+        self.main_layout.addWidget(self.heatmap_options_frame, 1, 2)
 
 
         self.save_options_frame = QtWidgets.QFrame()
@@ -377,12 +375,22 @@ class OutputPage(object):
         self.checkBox_model = QtWidgets.QCheckBox()
         self.checkBox_model.setText("SPECTRA model")
 
-        self.save_options.addWidget(self.checkBox_model, 1, 2)
+        self.save_options.addWidget(self.checkBox_model, 2, 0)
+
+        self.checkBox_cellscore = QtWidgets.QCheckBox()
+        self.checkBox_cellscore.setText("Cell Score Matrix")
+
+        self.save_options.addWidget(self.checkBox_cellscore, 1, 1)
+
+        self.checkBox_genescore = QtWidgets.QCheckBox()
+        self.checkBox_genescore.setText("Gene Score Matrix")
+
+        self.save_options.addWidget(self.checkBox_genescore, 2, 1)
 
         self.checkBox_umap = QtWidgets.QCheckBox()
         self.checkBox_umap.setText("UMAP figure")
 
-        self.save_options.addWidget(self.checkBox_umap, 2, 0)
+        self.save_options.addWidget(self.checkBox_umap, 1, 2)
 
         self.checkBox_heatmap = QtWidgets.QCheckBox()
         self.checkBox_heatmap.setText("Heatmap figure")
@@ -392,11 +400,22 @@ class OutputPage(object):
 
         def saveData():
             if self.checkBox_adata.isChecked():
-                self.anndata.write_h5ad("new_annData.h5ad")
+                self.anndata.write_h5ad("new_adata.h5ad")
 
             if self.checkBox_model.isChecked():
-                print("model save")
+                self.model.save("SPECTRA_model.pt")
 
+            if self.checkBox_cellscore.isChecked():
+                cell_scores = pd.DataFrame(self.anndata.obsm["SPECTRA_cell_scores"])
+                cell_scores.columns = [f"Factor_{x}" for x in range(len(cell_scores.columns))]
+                cell_scores.index = self.anndata.obs_names
+                cell_scores.to_csv("cell_scores.csv", header=True, index = True)
+
+            if self.checkBox_genescore.isChecked():
+                gene_scores = pd.DataFrame(self.anndata.uns["SPECTRA_factors"]).T
+                gene_scores.columns = [f"Factor_{x}" for x in range(len(gene_scores.columns))]
+                gene_scores.index = self.anndata.var_names[:len(gene_scores.index)]
+                gene_scores.to_csv("gene_scores.csv", header=True, index = True)
 
             if self.checkBox_umap.isChecked():
                 self.umap_canvas.print_figure("UMAP_figure.png")
@@ -410,17 +429,27 @@ class OutputPage(object):
 
         self.save_options.addWidget(self.save_button, 3, 2)
 
+        self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
+        self.reRunButton.setText("Run again")
+        self.save_options.addWidget(self.reRunButton, 3, 0)
+
+        self.save_options.setHorizontalSpacing(20)
+        self.save_options.setColumnStretch(0, 0)
+        self.save_options.setColumnStretch(1, 0)
+        self.save_options.setColumnStretch(2, 0)
+
         self.save_options_frame.setLayout(self.save_options)
 
-        self.main_layout.addWidget(self.save_options_frame, 1, 2)
+        self.main_layout.addWidget(self.save_options_frame, 1, 4)
 
 
         self.main_layout.setRowMinimumHeight(0, int(self.height * 2.2 / 3))
 
         self.main_layout.setColumnMinimumWidth(0, self.width // 100)
         self.main_layout.setColumnStretch(0, 0)
-        self.main_layout.setColumnMinimumWidth(1, int(self.width / 3))
-        self.main_layout.setHorizontalSpacing(20)
+        self.main_layout.setColumnStretch(2, 0)
+        self.main_layout.setColumnStretch(4, 0)
+        self.main_layout.setColumnMinimumWidth(2, int(self.width / 3))
 
 
         self.MainWindow.setLayout(self.main_layout)
