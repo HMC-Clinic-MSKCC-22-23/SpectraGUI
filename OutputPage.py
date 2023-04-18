@@ -1,7 +1,9 @@
 
 import os
-from spectra import spectra as spc
+from turtle import color
+#from spectra import spectra as spc
 import scanpy as sc
+import numpy as np
 import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt
@@ -88,6 +90,54 @@ class OutputPage(object):
 
         if self.anndata:
             self.redraw_umap()
+
+    def recolor_umap_by_gene(self):
+        
+        try:
+            self.point_size = float(self.point_size_box.text())
+        except:
+            newWindow = QtWidgets.QMessageBox()
+            newWindow.setText("You must input a valid point size.")
+            newWindow.exec()
+            return
+
+        try:
+            gene_text = self.gene_color_popup.input.text()
+            gene_list = ( "".join(gene_text.split()) ).split(",")
+            plot_var = np.sum(self.anndata.X[:, [self.anndata.var_names.get_loc(gene) for gene in gene_list]], axis = 0)
+        except:
+            newWindow = QtWidgets.QMessageBox()
+            newWindow.setText("Genes not found in AnnData. Please use the exact name, and separate names with a comma.")
+            newWindow.exec()
+            return
+
+
+
+        self.umap_canvas.figure.clear()
+        self.ax = self.umap_canvas.figure.subplots()
+        self.ax.grid(False)
+        self.ax.set_xticks([])
+        self.ax.set_yticks([])
+        self.ax.set_title(f"UMAP: {len(gene_list)} Genes")
+
+        vmin = min(plot_var)
+        vmax = max(plot_var)
+        vdomain = vmax - vmin
+
+        try:
+            vmax = vmin + (vdomain * (float(self.vmax_box.text()) / 100))
+        except:
+            vmax = vmin + vdomain
+
+        try:
+            vmin += vdomain * (float(self.vmin_box.text()) / 100) 
+        except:
+            vmin += 0
+            
+            
+        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = plot_var, s = self.point_size, cmap = "viridis")
+        self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, fraction = 0.05, format = "%4.3f")
+        self.umap_canvas.draw()
 
     def draw_umap(self):
 
@@ -176,7 +226,11 @@ class OutputPage(object):
             newWindow = QtWidgets.QMessageBox(self.MainWindow)
             newWindow.setText("AnnData not properly formatted")
             newWindow.exec()
-            
+
+    def geneColorPopUp(self):
+        self.gene_color_popup = umap_gene_window(self.recolor_umap_by_gene)
+        self.gene_color_popup.show()
+
     def colorByFactor(self):
             if self.anndata:
                 factorList = []
@@ -291,6 +345,16 @@ class OutputPage(object):
         self.geneGeneButton.clicked.connect(self.genePopUp)
 
         self.output_options.addWidget(self.geneGeneButton, 3, 1)
+
+        gene_color_button = QtWidgets.QPushButton(self.MainWindow)
+        gene_color_button.setText("Color UMAP by Gene")
+
+        self.gene_color_popup = None
+
+        gene_color_button.clicked.connect(self.geneColorPopUp)
+
+        self.output_options.addWidget(gene_color_button, 3, 2)
+
         self.output_options.setHorizontalSpacing(15)
 
         # self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
@@ -345,9 +409,9 @@ class OutputPage(object):
 
         self.heatmap_options.addWidget(heatmap_factors_button, 3, 0)
 
-        self.heatmap_options.setRowStretch(0, 1)
-        self.heatmap_options.setRowStretch(1, 0)
-        self.heatmap_options.setRowStretch(2, 0)
+        # self.heatmap_options.setRowStretch(0, 1)
+        # self.heatmap_options.setRowStretch(1, 0)
+        # self.heatmap_options.setRowStretch(2, 0)
 
         self.heatmap_options_frame.setLayout(self.heatmap_options)
 
@@ -455,6 +519,41 @@ class OutputPage(object):
         self.MainWindow.setLayout(self.main_layout)
 
 
+class umap_gene_window(QtWidgets.QMainWindow):
+
+    def __init__(self, colorFunction):
+        super().__init__()
+        self.title = "Select UMAP Genes"
+        self.left = 150
+        self.top = 150
+        self.width = 400
+        self.height = 120
+        self.colorFunction = colorFunction
+        self.initGeneWindow()
+
+    def initGeneWindow(self):
+
+        basic_layout = QtWidgets.QVBoxLayout()
+
+        gene_label = QtWidgets.QLabel("Genes to color by:", self)
+        gene_label.move(20, 10)
+
+        self.input = QtWidgets.QLineEdit(self)
+        self.input.setPlaceholderText("GENE1, GENE2, GENE3, etc.")
+        self.input.resize(350, 30)
+        self.input.move(20, 40)
+        
+        color_button = QtWidgets.QPushButton(self)
+        color_button.setText("Recolor UMAP")
+        color_button.pressed.connect(self.colorFunction)
+        color_button.resize(100, 30)
+        color_button.move(20, 80)
+
+        self.setGeometry(150, 150, self.width, self.height)
+        self.setWindowTitle(self.title)
+
+
+
 class factor_window(QtWidgets.QMainWindow):
 
     def __init__(self, factorList, checkedFactors, checkFunction):
@@ -499,7 +598,7 @@ class factor_window(QtWidgets.QMainWindow):
         self.setCentralWidget(self.scroll)
 
         self.setGeometry(150, 150, self.width, self.height)
-        self.setWindowTitle('Scroll Area Demonstration')
+        self.setWindowTitle(self.title)
 
 
 class ggg_window(object):
