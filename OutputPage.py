@@ -1,7 +1,7 @@
 
 import os
 from turtle import color
-#from spectra import spectra as spc
+from spectra import spectra as spc
 import scanpy as sc
 import numpy as np
 import pandas as pd
