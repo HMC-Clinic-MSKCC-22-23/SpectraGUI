@@ -104,7 +104,9 @@ class OutputPage(object):
         try:
             gene_text = self.gene_color_popup.input.text()
             gene_list = ( "".join(gene_text.split()) ).split(",")
-            plot_var = np.sum(self.anndata.X[:, [self.anndata.var_names.get_loc(gene) for gene in gene_list]], axis = 0)
+            plot_var = np.sum(self.anndata.X[:, [self.anndata.var_names.get_loc(gene) for gene in gene_list]],axis=1)
+            
+            plot_var = plot_var.flatten().tolist()[0]
         except:
             newWindow = QtWidgets.QMessageBox()
             newWindow.setText("Genes not found in AnnData. Please use the exact name, and separate names with a comma.")
@@ -546,7 +548,7 @@ class umap_gene_window(QtWidgets.QMainWindow):
         color_button = QtWidgets.QPushButton(self)
         color_button.setText("Recolor UMAP")
         color_button.pressed.connect(self.colorFunction)
-        color_button.resize(100, 30)
+        color_button.resize(120, 30)
         color_button.move(20, 80)
 
         self.setGeometry(150, 150, self.width, self.height)
