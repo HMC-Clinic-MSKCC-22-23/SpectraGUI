@@ -480,7 +480,9 @@ class OutputPage(object):
             if self.checkBox_genescore.isChecked():
                 gene_scores = pd.DataFrame(self.anndata.uns["SPECTRA_factors"]).T
                 gene_scores.columns = [f"Factor_{x}" for x in range(len(gene_scores.columns))]
-                gene_scores.index = self.anndata.var_names[:len(gene_scores.index)]
+
+                gene_scores.index = self.anndata.var_names[self.anndata.var["spectra_vocab"]]
+
                 gene_scores.to_csv("gene_scores.csv", header=True, index = True)
 
             if self.checkBox_umap.isChecked():
