@@ -134,7 +134,7 @@ class SpectraGUI:
     def end_thread(self):
 
         self.output = op.OutputPage(self.screen_width, self.screen_height, anndata = self.adata, model = self.workerThread.model, 
-                                    cell_type_key = self.cell_type_key)
+                                    gene_sets = self.gene_dict, cell_type_key = self.cell_type_key)
         self.output.reRunButton.clicked.connect(self.run_spectra_again)
         self.output.MainWindow.show()
 

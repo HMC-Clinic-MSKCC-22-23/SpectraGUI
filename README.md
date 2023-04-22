@@ -97,7 +97,7 @@ The available options include the ability to 'use highly variable' genes; if you
 
 ### __Output Screen__
 
-1. UMAP: The plot on the left side is a UMAP projection of the provided annData. You can use the dropdown menu below to change which SPECTRA factors are used to color the figure. Use 'vmin' and 'vmax' to narrow the color scale, and adjust 'point size' to change the diameter of the plotted points. When you're ready, use the "Redraw UMAP" to apply your changes.
+1. UMAP: The plot on the left side is a UMAP projection of the provided annData. You can use the dropdown menu below to change which SPECTRA factors are used to color the figure. Use 'vmin' and 'vmax' to narrow the color scale, and adjust 'point size' to change the diameter of the plotted points. When you're ready, use the "Redraw UMAP" to apply your changes. If you would rather color the plot by genes, press the "Color UMAP by gene" button, enter the gene names in the input box, separating them by a comma, and press "Recolor UMAP".
 
 2. Heatmap: The plot on the right side is a heatmap which plots the outputted SPECTRA factors against various other "obs" information included in the inputted annData. By default, all of the factors are included and are plotted against the provided cell types. The dropdown can be used to adjust the y-axis, and the "Add/Remove Factors" button can be used to change which factors appear on the x-axis.
 

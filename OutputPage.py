@@ -6,6 +6,7 @@ import scanpy as sc
 import numpy as np
 import pandas as pd
 import seaborn as sb
+import statistics as st
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from PyQt5 import QtCore, QtGui, QtWidgets, QtWebEngineWidgets
@@ -70,12 +71,26 @@ class OutputPage(object):
         else:
             return plt.Figure()
 
+
     def redraw_heatmap(self):
         new_data = self.heatmap_dropdown.currentText()
         self.heatmap_canvas.figure.clear()
         self.plots.removeWidget(self.heatmap_canvas)
         self.heatmap_canvas = FigureCanvasQTAgg(self.draw_heatmap(new_data))
         self.plots.addWidget(self.heatmap_canvas)
+
+    def draw_umap(self):
+
+        self.ax = self.umap_canvas.figure.subplots()
+        self.ax.grid(False)
+        self.ax.set_xticks([])
+        self.ax.set_yticks([])
+        self.ax.set_title("UMAP")
+        # if we have loaded anndata, draw colorless umap
+        if self.anndata:
+            self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = self.point_size)
+        else: # just draw a placeholder
+            self.umap_plot = self.ax.plot([2,5,4,3.5,4,5,2])
 
     def recolor_umap(self):
         
@@ -89,7 +104,32 @@ class OutputPage(object):
             return
 
         if self.anndata:
-            self.redraw_umap()
+
+            self.umap_canvas.figure.clear()
+            self.ax = self.umap_canvas.figure.subplots()
+            self.ax.grid(False)
+            self.ax.set_xticks([])
+            self.ax.set_yticks([])
+            self.ax.set_title("UMAP: Factor " + str(self.curr_factor))
+
+            vmin = min(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
+            vmax = max(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
+            vdomain = vmax - vmin
+
+            try:
+                vmax = vmin + (vdomain * (float(self.vmax_box.text()) / 100))
+            except:
+                vmax = vmin + vdomain
+
+            try:
+                vmin += vdomain * (float(self.vmin_box.text()) / 100) 
+            except:
+                vmin += 0
+                
+                
+            self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, cmap = "viridis")
+            self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, fraction = 0.05, format = "%4.3f")
+            self.umap_canvas.draw()
 
     def recolor_umap_by_gene(self):
         
@@ -112,8 +152,6 @@ class OutputPage(object):
             newWindow.setText("Genes not found in AnnData. Please use the exact name, and separate names with a comma.")
             newWindow.exec()
             return
-
-
 
         self.umap_canvas.figure.clear()
         self.ax = self.umap_canvas.figure.subplots()
@@ -138,47 +176,6 @@ class OutputPage(object):
             
             
         self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = plot_var, s = self.point_size, cmap = "viridis")
-        self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, fraction = 0.05, format = "%4.3f")
-        self.umap_canvas.draw()
-
-    def draw_umap(self):
-
-        self.ax = self.umap_canvas.figure.subplots()
-        self.ax.grid(False)
-        self.ax.set_xticks([])
-        self.ax.set_yticks([])
-        self.ax.set_title("UMAP")
-        # if we have loaded anndata, draw colorless umap
-        if self.anndata:
-            self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], color = "grey", s = self.point_size)
-        else: # just draw a placeholder
-            self.umap_plot = self.ax.plot([2,5,4,3.5,4,5,2])
-    
-    def redraw_umap(self):
-
-        self.umap_canvas.figure.clear()
-        self.ax = self.umap_canvas.figure.subplots()
-        self.ax.grid(False)
-        self.ax.set_xticks([])
-        self.ax.set_yticks([])
-        self.ax.set_title("UMAP: Factor " + str(self.curr_factor))
-
-        vmin = min(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
-        vmax = max(self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor])
-        vdomain = vmax - vmin
-
-        try:
-            vmax = vmin + (vdomain * (float(self.vmax_box.text()) / 100))
-        except:
-            vmax = vmin + vdomain
-
-        try:
-            vmin += vdomain * (float(self.vmin_box.text()) / 100) 
-        except:
-            vmin += 0
-            
-            
-        self.umap_plot = self.ax.scatter(self.anndata.obsm["X_umap"][:,0], self.anndata.obsm["X_umap"][:,1], vmin = vmin, vmax = vmax, c = self.anndata.obsm["SPECTRA_cell_scores"][:,self.curr_factor], s = self.point_size, cmap = "viridis")
         self.umap_canvas.figure.colorbar(self.umap_plot, ax = self.ax, pad = 0.01, fraction = 0.05, format = "%4.3f")
         self.umap_canvas.draw()
 
@@ -245,6 +242,101 @@ class OutputPage(object):
                 return factorList
             else:
                 return ["Factor 0", "Factor 1", "Factor 2", "Factor 3"]
+
+    def match_factors_gs(self):
+        all_factors = list(range(len(self.anndata.uns["SPECTRA_markers"])))
+        col_names = {f"Factor_{n}":[] for n in all_factors} # map factor names to intersection values
+
+        # select only genes that are in gene_score matrixb
+        gene_lookup = self.anndata.var_names[self.anndata.var["spectra_vocab"]].tolist()
+
+        gs_labels = [] # list of labels for csv
+        gs_genes = [] # list of gene names for matching
+
+        # flatten gene set, get names and genes 
+        for cell_type_name, cell_type_dict in self.gene_sets.items():
+            for pathway_name, pathway_genes in cell_type_dict.items():
+                gs_labels.append(f"{cell_type_name}__{pathway_name}")
+
+                # find indices of pathway genes in the gene scores matrix
+                gene_idxs = [gene_lookup.index(gene) for gene in pathway_genes if gene in gene_lookup]
+
+                gs_genes.append(gene_idxs)
+
+        # for each factor
+        for curr_factor in all_factors:  
+
+            # select top genes per factor
+            curr_loadings = self.anndata.uns["SPECTRA_factors"][curr_factor]
+
+            curr_cutoff = st.mean(curr_loadings) + 2 * st.stdev(curr_loadings)
+
+            curr_top_genes = [idx for idx, value in enumerate(curr_loadings) if value > curr_cutoff]
+
+            # for each gene set
+            for gene_set in gs_genes:
+                
+                # find intersection between factor genes and gene set genes
+                gs_score = self.gs_score_per_factor(curr_top_genes, gene_set)
+
+                # put into dictionary
+                col_names[f"Factor_{curr_factor}"].append(gs_score)
+
+
+        # sort rows by alphabetical order
+        output = pd.DataFrame(col_names)
+        output.index = gs_labels
+        output.sort_index()
+
+        # return dataframe
+        return output
+    
+    def gs_score_per_factor(self, top_genes_idx, gs_genes_idx):
+        # find number of intersections between factor's gene list and gs gene list
+        temp = set(gs_genes_idx)
+        num_intersections = len([idx for idx in top_genes_idx if idx in temp])
+
+        # divide by min(number of genes in the factor, number of genes in the gene set)
+        output = num_intersections / min(len(top_genes_idx), len(gs_genes_idx))
+        return output
+
+    def saveData(self):
+        if self.checkBox_adata.isChecked():
+            self.anndata.write_h5ad("new_adata.h5ad")
+            print("Annotated Data saved")
+
+        if self.checkBox_model.isChecked():
+            self.model.save("SPECTRA_model.pt")
+            print("SPECTRA Model saved")
+
+        if self.checkBox_gs_factor.isChecked():
+            matching = self.match_factors_gs()  
+            matching.to_csv("factor_geneset_matching.csv", header=True, index = True)
+            print("Gene Set - Factor matching saved")
+
+        if self.checkBox_cellscore.isChecked():
+            cell_scores = pd.DataFrame(self.anndata.obsm["SPECTRA_cell_scores"])
+            cell_scores.columns = [f"Factor_{x}" for x in range(len(cell_scores.columns))]
+            cell_scores.index = self.anndata.obs_names
+            cell_scores.to_csv("cell_scores.csv", header=True, index = True)
+            print("Cell Score matrix saved")
+
+        if self.checkBox_genescore.isChecked():
+            gene_scores = pd.DataFrame(self.anndata.uns["SPECTRA_factors"]).T
+            gene_scores.columns = [f"Factor_{x}" for x in range(len(gene_scores.columns))]
+
+            gene_scores.index = self.anndata.var_names[self.anndata.var["spectra_vocab"]]
+
+            gene_scores.to_csv("gene_scores.csv", header=True, index = True)
+            print("Gene Score matrix saved")
+
+        if self.checkBox_umap.isChecked():
+            self.umap_canvas.print_figure("UMAP_figure.png")
+            print("UMAP figure saved")
+
+        if self.checkBox_heatmap.isChecked():
+            self.heatmap_canvas.print_figure("Heatmap_figure.png")
+            print("Heatmap figure saved")
 
     def setupUi(self):
 
@@ -349,7 +441,7 @@ class OutputPage(object):
         self.output_options.addWidget(self.geneGeneButton, 3, 1)
 
         gene_color_button = QtWidgets.QPushButton(self.MainWindow)
-        gene_color_button.setText("Color UMAP by Gene")
+        gene_color_button.setText("Color UMAP by gene")
 
         self.gene_color_popup = None
 
@@ -358,12 +450,6 @@ class OutputPage(object):
         self.output_options.addWidget(gene_color_button, 3, 2)
 
         self.output_options.setHorizontalSpacing(15)
-
-        # self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
-        # self.reRunButton.setText("Run again")
-        # self.output_options.addWidget(self.reRunButton, 3, 2)
-
-        # self.output_options.setHorizontalSpacing(int( (self.height * 5 / 12) / 4))
  
         self.output_options_frame.setLayout(self.output_options)
         self.output_options_frame.setMaximumWidth(int(self.width / 2.2))
@@ -443,13 +529,18 @@ class OutputPage(object):
 
         self.save_options.addWidget(self.checkBox_model, 2, 0)
 
+        self.checkBox_gs_factor = QtWidgets.QCheckBox()
+        self.checkBox_gs_factor.setText("Match factors to gene set")
+
+        self.save_options.addWidget(self.checkBox_gs_factor, 3, 0)
+
         self.checkBox_cellscore = QtWidgets.QCheckBox()
-        self.checkBox_cellscore.setText("Cell Score Matrix")
+        self.checkBox_cellscore.setText("Cell Score matrix")
 
         self.save_options.addWidget(self.checkBox_cellscore, 1, 1)
 
         self.checkBox_genescore = QtWidgets.QCheckBox()
-        self.checkBox_genescore.setText("Gene Score Matrix")
+        self.checkBox_genescore.setText("Gene Score matrix")
 
         self.save_options.addWidget(self.checkBox_genescore, 2, 1)
 
@@ -463,43 +554,15 @@ class OutputPage(object):
         
         self.save_options.addWidget(self.checkBox_heatmap, 2, 2)
 
-
-        def saveData():
-            if self.checkBox_adata.isChecked():
-                self.anndata.write_h5ad("new_adata.h5ad")
-
-            if self.checkBox_model.isChecked():
-                self.model.save("SPECTRA_model.pt")
-
-            if self.checkBox_cellscore.isChecked():
-                cell_scores = pd.DataFrame(self.anndata.obsm["SPECTRA_cell_scores"])
-                cell_scores.columns = [f"Factor_{x}" for x in range(len(cell_scores.columns))]
-                cell_scores.index = self.anndata.obs_names
-                cell_scores.to_csv("cell_scores.csv", header=True, index = True)
-
-            if self.checkBox_genescore.isChecked():
-                gene_scores = pd.DataFrame(self.anndata.uns["SPECTRA_factors"]).T
-                gene_scores.columns = [f"Factor_{x}" for x in range(len(gene_scores.columns))]
-
-                gene_scores.index = self.anndata.var_names[self.anndata.var["spectra_vocab"]]
-
-                gene_scores.to_csv("gene_scores.csv", header=True, index = True)
-
-            if self.checkBox_umap.isChecked():
-                self.umap_canvas.print_figure("UMAP_figure.png")
-
-            if self.checkBox_heatmap.isChecked():
-                self.heatmap_canvas.print_figure("Heatmap_figure.png")
-
         self.save_button = QtWidgets.QPushButton()
         self.save_button.setText("Save")
-        self.save_button.clicked.connect(saveData)
+        self.save_button.clicked.connect(self.saveData)
 
         self.save_options.addWidget(self.save_button, 3, 2)
 
         self.reRunButton = QtWidgets.QPushButton(self.MainWindow)
         self.reRunButton.setText("Run again")
-        self.save_options.addWidget(self.reRunButton, 3, 0)
+        self.save_options.addWidget(self.reRunButton, 3, 1)
 
         self.save_options.setHorizontalSpacing(20)
         self.save_options.setColumnStretch(0, 0)
